@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { useState } from "react";
 
 import {
   Card,
@@ -138,6 +139,14 @@ const footerLinks = [
 ];
 
 export default function Home() {
+  const [activeCard, setActiveCard] = useState<string | null>(null);
+
+  const handleCardSelect = (cardId: string) => {
+    setActiveCard((prev) => (prev === cardId ? null : cardId));
+  };
+
+  const dismissActiveCard = () => setActiveCard(null);
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,#f6f8ff,60%,#eef0ff)] text-foreground">
       <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col justify-between gap-16 px-6 py-12 md:px-12 lg:flex-row">
@@ -149,20 +158,51 @@ export default function Home() {
                 card.type === "card" && card.background === "video";
               const isImageCard =
                 card.type === "card" && card.background === "image";
+              const isActive = activeCard === card.id;
+              const isDimmed = activeCard !== null && !isActive;
+
+              const positionClasses = isActive
+                ? "left-1/2 top-1/2 h-[440px] w-[280px] -translate-x-1/2 -translate-y-1/2 rotate-0 shadow-[0_50px_140px_rgba(94,86,255,0.3)]"
+                : card.position;
+
               return (
                 <motion.div
                   key={card.id}
+                  layout
+                  layoutId={`hero-card-${card.id}`}
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={isActive}
+                  onClick={() => handleCardSelect(card.id)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      handleCardSelect(card.id);
+                    }
+                    if (event.key === "Escape") {
+                      dismissActiveCard();
+                    }
+                  }}
                   initial={{ opacity: 0, scale: 0.95, y: 40 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  animate={{
+                    opacity: isActive ? 1 : isDimmed ? 0.2 : 1,
+                    scale: isActive ? 1.08 : isDimmed ? 0.92 : 1,
+                    y: 0,
+                  }}
+                  whileHover={
+                    activeCard
+                      ? undefined
+                      : { scale: 1.03, transition: { duration: 0.3 } }
+                  }
                   transition={{
-                    delay: index * 0.15,
+                    delay: activeCard ? 0 : index * 0.18,
                     type: "spring",
-                    stiffness: 180,
-                    damping: 22,
+                    stiffness: 220,
+                    damping: 24,
                   }}
                   className={cn(
-                    "absolute overflow-hidden rounded-[40px] text-white",
-                    card.position,
+                    "absolute cursor-pointer overflow-hidden rounded-[40px] text-white outline-none transition-[filter] duration-500 ease-[cubic-bezier(.18,.89,.32,1.28)] focus-visible:ring-2 focus-visible:ring-[#7d76ff]",
+                    positionClasses,
                     isStory ? "p-0" : isImageCard ? "p-0" : "p-8",
                     !isStory &&
                       !isVideoCard &&
@@ -172,8 +212,12 @@ export default function Home() {
                       card.type === "card" &&
                       card.background === "gradient" &&
                       card.gradient,
-                    isVideoCard && "bg-transparent"
+                    isVideoCard && "bg-transparent",
+                    isDimmed && "blur-[2px] saturate-[0.7]"
                   )}
+                  style={{
+                    zIndex: isActive ? 40 : 10 + (heroCards.length - index),
+                  }}
                 >
                   {isStory && card.imageSrc ? (
                     <div className="relative flex h-full w-full flex-col justify-between overflow-hidden rounded-[40px]">
@@ -183,7 +227,7 @@ export default function Home() {
                         fill
           priority
                         className="object-cover"
-                      />
+        />
                       <div className="absolute inset-0 bg-linear-to-b from-black/5 via-black/30 to-black/85" />
                       <div className="relative flex flex-1 flex-col justify-between p-6">
                         <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-white/80">
@@ -229,12 +273,7 @@ export default function Home() {
                             muted
                             loop
                             playsInline
-                            className={cn(
-                              "absolute inset-0 h-full w-full object-cover transition-all duration-500",
-                              isVideoCard
-                                ? "inset-0 h-full w-full object-cover"
-                                : ""
-                            )}
+                            className="absolute inset-0 h-full w-full object-cover"
                           />
                           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(69,55,205,0.4)_0%,rgba(36,17,115,0.75)_100%)]" />
                         </>
@@ -250,12 +289,7 @@ export default function Home() {
                           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(40,163,255,0.2)_0%,rgba(0,68,148,0.85)_100%)]" />
                         </>
                       )}
-                      <div
-                        className={cn(
-                          "relative z-10 flex h-full flex-col",
-                          isImageCard && "p-8"
-                        )}
-                      >
+                      <div className="relative z-10 flex h-full flex-col">
                         <motion.div
                           initial={{ y: -12 }}
                           animate={{ y: [0, -12, 0] }}
@@ -296,7 +330,7 @@ export default function Home() {
                               <div
                                 key={comment.id}
                                 className="flex items-center gap-2 rounded-full bg-white/12 px-3 py-1.5 text-white/90 backdrop-blur"
-                              >
+            >
                                 <span className="font-semibold">
                                   {comment.author}
                                 </span>
@@ -317,19 +351,14 @@ export default function Home() {
                             Attach keeps your circle close & colorful.
                           </motion.span>
                         ) : (
-                          <motion.div
+                          <motion.span
                             initial={{ opacity: 0, y: 12 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.6 + index * 0.1 }}
-                            className="mt-8 flex flex-col gap-4 text-sm font-medium text-white/80"
+                            className="mt-8 text-sm font-medium text-white/85"
                           >
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/30 backdrop-blur">
-                              {index === 0 ? "📸" : "🎬"}
-                            </div>
-                            <span className="text-sm font-medium text-white/85">
-                              Attach keeps your circle close & colorful.
-                            </span>
-                          </motion.div>
+                            Attach keeps your circle close & colorful.
+                          </motion.span>
                         )}
                       </div>
                     </>
@@ -417,7 +446,7 @@ export default function Home() {
               <Link
                 href="#"
                 className="text-center text-sm font-medium text-[#5f6cff] hover:text-[#4654f0]"
-              >
+          >
                 Forgot password?
               </Link>
             </CardContent>
