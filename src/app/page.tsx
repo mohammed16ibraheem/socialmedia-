@@ -104,7 +104,7 @@ const featureBadges = [
   },
   {
     id: "shield",
-    text: "Stay Safe Shield",
+    text: "Safe Shield",
     position: "right-2 top-8",
     gradient: "from-[#5dd6ff]/90 to-[#a4f7ff]/80",
   },
@@ -116,7 +116,7 @@ const featureBadges = [
   },
   {
     id: "nft",
-    text: "NFT Profile Ready",
+    text: "NFT Profile",
     position: "-left-4 bottom-6",
     gradient: "from-[#ffb681]/90 to-[#ffe6c8]/80",
   },
