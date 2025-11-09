@@ -21,6 +21,7 @@ import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa";
 import { SiGoogleplay } from "react-icons/si";
 import { RiWallet3Line } from "react-icons/ri";
+import { HiOutlineEye, HiOutlineEyeOff } from "react-icons/hi";
 
 type BaseHeroCard = {
   id: string;
@@ -140,12 +141,21 @@ const footerLinks = [
 
 export default function Home() {
   const [activeCard, setActiveCard] = useState<string | null>(null);
+  const [isSignup, setIsSignup] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleCardSelect = (cardId: string) => {
     setActiveCard((prev) => (prev === cardId ? null : cardId));
   };
 
   const dismissActiveCard = () => setActiveCard(null);
+
+  const toggleSignupMode = () => {
+    setIsSignup((prev) => !prev);
+    setShowPassword(false);
+    setShowConfirmPassword(false);
+  };
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,#f6f8ff,60%,#eef0ff)] text-foreground">
@@ -395,67 +405,191 @@ export default function Home() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="identity"
-                  className="text-sm font-medium text-[#433d73]"
-                >
-                  Phone number, username, or email
-                </Label>
-                <Input
-                  id="identity"
-                  placeholder="you@attach.social"
-                  className="h-12 border-[#cfd6ff] bg-white/95 text-base shadow-[0_4px_16px_rgba(125,118,255,0.12)] focus-visible:border-[#7d76ff] focus-visible:ring-[#7d76ff]/40"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label
-                  htmlFor="password"
-                  className="text-sm font-medium text-[#433d73]"
-                >
-                  Password
-                </Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  className="h-12 border-[#cfd6ff] bg-white/95 text-base shadow-[0_4px_16px_rgba(125,118,255,0.12)] focus-visible:border-[#7d76ff] focus-visible:ring-[#7d76ff]/40"
-                />
-              </div>
-              <Button className="h-12 w-full rounded-full bg-[#6756ff] text-base font-semibold text-white transition-colors hover:bg-[#5745f5]">
-                Log in
-              </Button>
-              <div className="flex items-center gap-3 text-xs font-medium uppercase tracking-[0.2em] text-[#9aa0c6]">
-                <span className="h-px flex-1 bg-linear-to-r from-transparent via-[#ccd2ff] to-transparent" />
-                Or
-                <span className="h-px flex-1 bg-linear-to-r from-transparent via-[#ccd2ff] to-transparent" />
-              </div>
-              <Button
-                variant="outline"
-                className="h-12 w-full rounded-full border-[#ccd2ff] bg-white text-base font-semibold text-[#4058ff] shadow-none transition-colors hover:border-[#b7c0ff] hover:bg-[#eef0ff]"
-              >
-                <FcGoogle className="text-xl" />
-                Continue with Gmail
-              </Button>
-              <Button
-                className="h-12 w-full rounded-full bg-[#1d1550] text-base font-semibold text-white shadow-[0_10px_30px_rgba(51,38,123,0.25)] transition-colors hover:bg-[#2b1f7a]"
-              >
-                <RiWallet3Line className="text-lg" />
-                Connect Web3 Wallet
-              </Button>
-              <Link
-                href="#"
-                className="text-center text-sm font-medium text-[#5f6cff] hover:text-[#4654f0]"
-          >
-                Forgot password?
-              </Link>
+              {isSignup ? (
+                <>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="first-name"
+                        className="text-sm font-medium text-[#433d73]"
+                      >
+                        First name
+                      </Label>
+                      <Input
+                        id="first-name"
+                        placeholder="Ava"
+                        className="h-12 border-[#cfd6ff] bg-white/95 text-base shadow-[0_4px_16px_rgba(125,118,255,0.12)] focus-visible:border-[#7d76ff] focus-visible:ring-[#7d76ff]/40"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="last-name"
+                        className="text-sm font-medium text-[#433d73]"
+                      >
+                        Last name
+                      </Label>
+                      <Input
+                        id="last-name"
+                        placeholder="Rivera"
+                        className="h-12 border-[#cfd6ff] bg-white/95 text-base shadow-[0_4px_16px_rgba(125,118,255,0.12)] focus-visible:border-[#7d76ff] focus-visible:ring-[#7d76ff]/40"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="signup-email"
+                      className="text-sm font-medium text-[#433d73]"
+                    >
+                      Email
+                    </Label>
+                    <Input
+                      id="signup-email"
+                      type="email"
+                      placeholder="you@attach.social"
+                      className="h-12 border-[#cfd6ff] bg-white/95 text-base shadow-[0_4px_16px_rgba(125,118,255,0.12)] focus-visible:border-[#7d76ff] focus-visible:ring-[#7d76ff]/40"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="signup-password"
+                      className="text-sm font-medium text-[#433d73]"
+                    >
+                      Password
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="signup-password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Create a password"
+                        className="h-12 border-[#cfd6ff] bg-white/95 pr-12 text-base shadow-[0_4px_16px_rgba(125,118,255,0.12)] focus-visible:border-[#7d76ff] focus-visible:ring-[#7d76ff]/40"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        className="absolute inset-y-0 right-3 flex items-center text-[#5f648c] transition hover:text-[#433d73]"
+                        aria-label={
+                          showPassword ? "Hide password" : "Show password"
+                        }
+                      >
+                        {showPassword ? (
+                          <HiOutlineEyeOff className="text-xl" />
+                        ) : (
+                          <HiOutlineEye className="text-xl" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="signup-confirm"
+                      className="text-sm font-medium text-[#433d73]"
+                    >
+                      Confirm password
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="signup-confirm"
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="Repeat your password"
+                        className="h-12 border-[#cfd6ff] bg-white/95 pr-12 text-base shadow-[0_4px_16px_rgba(125,118,255,0.12)] focus-visible:border-[#7d76ff] focus-visible:ring-[#7d76ff]/40"
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setShowConfirmPassword((prev) => !prev)
+                        }
+                        className="absolute inset-y-0 right-3 flex items-center text-[#5f648c] transition hover:text-[#433d73]"
+                        aria-label={
+                          showConfirmPassword
+                            ? "Hide confirm password"
+                            : "Show confirm password"
+                        }
+                      >
+                        {showConfirmPassword ? (
+                          <HiOutlineEyeOff className="text-xl" />
+                        ) : (
+                          <HiOutlineEye className="text-xl" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  <Button className="h-12 w-full rounded-full bg-[#6756ff] text-base font-semibold text-white transition-colors hover:bg-[#5745f5]">
+                    Create account
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="identity"
+                      className="text-sm font-medium text-[#433d73]"
+                    >
+                      Phone number, username, or email
+                    </Label>
+                    <Input
+                      id="identity"
+                      placeholder="you@attach.social"
+                      className="h-12 border-[#cfd6ff] bg-white/95 text-base shadow-[0_4px_16px_rgba(125,118,255,0.12)] focus-visible:border-[#7d76ff] focus-visible:ring-[#7d76ff]/40"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="password"
+                      className="text-sm font-medium text-[#433d73]"
+                    >
+                      Password
+                    </Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="••••••••"
+                      className="h-12 border-[#cfd6ff] bg-white/95 text-base shadow-[0_4px_16px_rgba(125,118,255,0.12)] focus-visible:border-[#7d76ff] focus-visible:ring-[#7d76ff]/40"
+                    />
+                  </div>
+                  <Button className="h-12 w-full rounded-full bg-[#6756ff] text-base font-semibold text-white transition-colors hover:bg-[#5745f5]">
+                    Log in
+                  </Button>
+                </>
+              )}
+              {!isSignup && (
+                <>
+                  <div className="flex items-center gap-3 text-xs font-medium uppercase tracking-[0.2em] text-[#9aa0c6]">
+                    <span className="h-px flex-1 bg-linear-to-r from-transparent via-[#ccd2ff] to-transparent" />
+                    Or
+                    <span className="h-px flex-1 bg-linear-to-r from-transparent via-[#ccd2ff] to-transparent" />
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="h-12 w-full rounded-full border-[#ccd2ff] bg-white text-base font-semibold text-[#4058ff] shadow-none transition-colors hover:border-[#b7c0ff] hover:bg-[#eef0ff]"
+                  >
+                    <FcGoogle className="text-xl" />
+                    Continue with Gmail
+                  </Button>
+                  <Button
+                    className="h-12 w-full rounded-full bg-[#1d1550] text-base font-semibold text-white shadow-[0_10px_30px_rgba(51,38,123,0.25)] transition-colors hover:bg-[#2b1f7a]"
+                  >
+                    <RiWallet3Line className="text-lg" />
+                    Connect Web3 Wallet
+                  </Button>
+                  <Link
+                    href="#"
+                    className="text-center text-sm font-medium text-[#5f6cff] hover:text-[#4654f0]"
+                  >
+                    Forgot password?
+                  </Link>
+                </>
+              )}
             </CardContent>
             <CardFooter className="flex flex-col gap-2 text-center text-sm text-[#5f648c]">
               <span>
-                Don&apos;t have an account?{" "}
-                <Link href="#" className="font-semibold text-[#6756ff]">
-                  Sign up
-                </Link>
+                {isSignup ? "Already have an account?" : "Don\u2019t have an account?"}{" "}
+                <button
+                  type="button"
+                  onClick={toggleSignupMode}
+                  className="font-semibold text-[#6756ff] transition hover:text-[#5745f5]"
+                >
+                  {isSignup ? "Log in" : "Sign up"}
+                </button>
               </span>
               <span className="text-xs uppercase tracking-[0.2em] text-[#9aa0c6]">
                 Built for creators, communities & personal moments
