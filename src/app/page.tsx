@@ -42,9 +42,10 @@ type StoryHeroCard = BaseHeroCard & {
 
 type CardHeroCard = BaseHeroCard & {
   type: "card";
-  background?: "gradient" | "solid" | "video";
+  background?: "gradient" | "solid" | "video" | "image";
   videoSrc?: string;
   comments?: { id: string; author: string; text: string }[];
+  imageSrc?: string;
 };
 
 type HeroCard = StoryHeroCard | CardHeroCard;
@@ -85,13 +86,13 @@ const heroCards: HeroCard[] = [
   {
     id: "create",
     type: "card" as const,
-    background: "gradient" as const,
+    background: "image" as const,
     title: "Create Together",
     subtitle: "Collaborate on reels, posts, and events.",
-    gradient: "bg-[linear-gradient(135deg,#63f5ff,#5dd6ff)]",
     position:
       "right-8 bottom-8 h-[320px] w-[220px] rotate-[18deg] shadow-[0_25px_70px_rgba(99,245,255,0.3)]",
     chip: "✨ New",
+    imageSrc: "/stories/create-card.jpg",
   },
 ];
 
@@ -146,23 +147,31 @@ export default function Home() {
               const isStory = card.type === "story";
               const isVideoCard =
                 card.type === "card" && card.background === "video";
+              const isImageCard =
+                card.type === "card" && card.background === "image";
               return (
                 <motion.div
                   key={card.id}
                   initial={{ opacity: 0, scale: 0.95, y: 40 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   transition={{
-                    delay: index * 0.2,
+                    delay: index * 0.15,
                     type: "spring",
                     stiffness: 180,
-                    damping: 18,
+                    damping: 22,
                   }}
                   className={cn(
                     "absolute overflow-hidden rounded-[40px] text-white",
                     card.position,
-                    isStory ? "p-0" : "p-8",
-                    !isStory && !isVideoCard && "backdrop-blur-xl",
-                    !isStory && !isVideoCard && card.gradient,
+                    isStory ? "p-0" : isImageCard ? "p-0" : "p-8",
+                    !isStory &&
+                      !isVideoCard &&
+                      !isImageCard &&
+                      "backdrop-blur-xl",
+                    !isStory &&
+                      card.type === "card" &&
+                      card.background === "gradient" &&
+                      card.gradient,
                     isVideoCard && "bg-transparent"
                   )}
                 >
@@ -220,12 +229,33 @@ export default function Home() {
                             muted
                             loop
                             playsInline
-                            className="absolute inset-0 h-full w-full object-cover"
+                            className={cn(
+                              "absolute inset-0 h-full w-full object-cover transition-all duration-500",
+                              isVideoCard
+                                ? "inset-0 h-full w-full object-cover"
+                                : ""
+                            )}
                           />
                           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(69,55,205,0.4)_0%,rgba(36,17,115,0.75)_100%)]" />
                         </>
                       )}
-                      <div className="relative z-10 flex h-full flex-col">
+                      {isImageCard && card.imageSrc && (
+                        <>
+                          <Image
+                            src={card.imageSrc}
+                            alt={card.title}
+                            fill
+                            className="object-cover"
+                          />
+                          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(40,163,255,0.2)_0%,rgba(0,68,148,0.85)_100%)]" />
+                        </>
+                      )}
+                      <div
+                        className={cn(
+                          "relative z-10 flex h-full flex-col",
+                          isImageCard && "p-8"
+                        )}
+                      >
                         <motion.div
                           initial={{ y: -12 }}
                           animate={{ y: [0, -12, 0] }}
@@ -322,14 +352,6 @@ export default function Home() {
                 <span className="relative z-10">{badge.text}</span>
               </motion.span>
             ))}
-            <motion.div
-              className="absolute -bottom-12 right-8 hidden h-14 w-36 items-center justify-center rounded-full bg-white/70 text-sm font-medium text-[#5f3bff] shadow-[0_10px_45px_rgba(111,89,255,0.25)] lg:flex"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
-            >
-              Attach Live
-            </motion.div>
           </div>
         </div>
 
