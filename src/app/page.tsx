@@ -21,7 +21,35 @@ import { FaApple } from "react-icons/fa";
 import { SiGoogleplay } from "react-icons/si";
 import { RiWallet3Line } from "react-icons/ri";
 
-const heroCards = [
+type BaseHeroCard = {
+  id: string;
+  type: "story" | "card";
+  title: string;
+  subtitle: string;
+  position: string;
+  chip: string;
+  gradient?: string;
+};
+
+type StoryHeroCard = BaseHeroCard & {
+  type: "story";
+  imageSrc: string;
+  headline: string;
+  profileName: string;
+  profileFollowers: string;
+  profileImage?: string;
+};
+
+type CardHeroCard = BaseHeroCard & {
+  type: "card";
+  background?: "gradient" | "solid" | "video";
+  videoSrc?: string;
+  comments?: { id: string; author: string; text: string }[];
+};
+
+type HeroCard = StoryHeroCard | CardHeroCard;
+
+const heroCards: HeroCard[] = [
   {
     id: "explore",
     type: "story" as const,
@@ -40,17 +68,24 @@ const heroCards = [
   {
     id: "connect",
     type: "card" as const,
+    background: "video" as const,
     title: "Connect Instantly",
     subtitle: "Start bright conversations that matter.",
     gradient: "bg-[linear-gradient(135deg,#64a8ff,#9059ff)]",
     position:
       "left-1/2 top-1/2 h-[380px] w-[260px] -translate-x-1/2 -translate-y-1/2 rotate-[6deg] shadow-[0_25px_70px_rgba(137,123,255,0.35)]",
-    chip: "💬 Live",
+    chip: "Live",
     videoSrc: "/media/connect-loop.mp4",
+    comments: [
+      { id: "c1", author: "Mia", text: "awesome!" },
+      { id: "c2", author: "Jay", text: "love this energy" },
+      { id: "c3", author: "Zara", text: "best vibes 🔥" },
+    ],
   },
   {
     id: "create",
     type: "card" as const,
+    background: "gradient" as const,
     title: "Create Together",
     subtitle: "Collaborate on reels, posts, and events.",
     gradient: "bg-[linear-gradient(135deg,#63f5ff,#5dd6ff)]",
@@ -110,7 +145,7 @@ export default function Home() {
             {heroCards.map((card, index) => {
               const isStory = card.type === "story";
               const isVideoCard =
-                card.type === "card" && index === 1 && Boolean(card.videoSrc);
+                card.type === "card" && card.background === "video";
               return (
                 <motion.div
                   key={card.id}
@@ -133,14 +168,14 @@ export default function Home() {
                 >
                   {isStory && card.imageSrc ? (
                     <div className="relative flex h-full w-full flex-col justify-between overflow-hidden rounded-[40px]">
-                      <Image
+        <Image
                         src={card.imageSrc}
                         alt={card.title}
                         fill
-                        priority
+          priority
                         className="object-cover"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/30 to-black/85" />
+                      <div className="absolute inset-0 bg-linear-to-b from-black/5 via-black/30 to-black/85" />
                       <div className="relative flex flex-1 flex-col justify-between p-6">
                         <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-white/80">
                           <span className="flex items-center gap-2 rounded-full bg-black/30 px-3 py-1 text-[0.7rem] font-medium">
@@ -199,8 +234,19 @@ export default function Home() {
                             repeat: Infinity,
                             ease: "easeInOut",
                           }}
-                          className="inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm font-medium"
+                          className={cn(
+                            "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium",
+                            isVideoCard
+                              ? "bg-red-500/90 text-white shadow-[0_10px_25px_rgba(255,91,91,0.35)]"
+                              : "bg-white/20"
+                          )}
                         >
+                          {isVideoCard && (
+                            <span className="relative flex h-2.5 w-2.5">
+                              <span className="absolute inset-0 rounded-full bg-white/70 opacity-80 blur-[2px]" />
+                              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-white" />
+                            </span>
+                          )}
                           <span>{card.chip}</span>
                         </motion.div>
                         <h3 className="mt-6 text-2xl font-semibold leading-tight">
@@ -209,6 +255,28 @@ export default function Home() {
                         <p className="mt-3 text-base text-white/85">
                           {card.subtitle}
                         </p>
+                        {isVideoCard && card.comments && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 16 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.5 }}
+                            className="mt-4 space-y-3 text-xs"
+                          >
+                            {card.comments.map((comment) => (
+                              <div
+                                key={comment.id}
+                                className="flex items-center gap-2 rounded-full bg-white/12 px-3 py-1.5 text-white/90 backdrop-blur"
+                              >
+                                <span className="font-semibold">
+                                  {comment.author}
+                                </span>
+                                <span className="text-white/80">
+                                  {comment.text}
+                                </span>
+                              </div>
+                            ))}
+                          </motion.div>
+                        )}
                         {isVideoCard ? (
                           <motion.span
                             initial={{ opacity: 0, y: 12 }}
@@ -246,7 +314,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 + index * 0.12 }}
                 className={cn(
-                  "absolute inline-flex items-center gap-2 rounded-full bg-gradient-to-r px-4 py-2 text-xs font-semibold text-[#1d1550] shadow-[0_12px_32px_rgba(118,108,255,0.18)] backdrop-blur",
+                  "absolute inline-flex items-center gap-2 rounded-full bg-linear-to-r px-4 py-2 text-xs font-semibold text-[#1d1550] shadow-[0_12px_32px_rgba(118,108,255,0.18)] backdrop-blur",
                   badge.position,
                   badge.gradient
                 )}
@@ -307,9 +375,9 @@ export default function Home() {
                 Log in
               </Button>
               <div className="flex items-center gap-3 text-xs font-medium uppercase tracking-[0.2em] text-[#9aa0c6]">
-                <span className="h-px flex-1 bg-gradient-to-r from-transparent via-[#ccd2ff] to-transparent" />
+                <span className="h-px flex-1 bg-linear-to-r from-transparent via-[#ccd2ff] to-transparent" />
                 Or
-                <span className="h-px flex-1 bg-gradient-to-r from-transparent via-[#ccd2ff] to-transparent" />
+                <span className="h-px flex-1 bg-linear-to-r from-transparent via-[#ccd2ff] to-transparent" />
               </div>
               <Button
                 variant="outline"
