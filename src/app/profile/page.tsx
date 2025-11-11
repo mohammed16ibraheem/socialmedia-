@@ -20,17 +20,21 @@ const profileStats = [
   { id: "posts", label: "Posts", value: "250" },
 ];
 
-const galleryItems = [
+type GalleryItem = {
+  id: string;
+  src: string;
+  alt: string;
+  title: string;
+  stats: { likes: string; comments: string; shares: string };
+  comments: { id: string; author: string; avatar: string; text: string }[];
+};
+
+const galleryItems: GalleryItem[] = [
   {
     id: "sunrise",
     src: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
     alt: "Sunrise over layered mountains",
     title: "Golden Summit Glow",
-    user: {
-      name: "Lena Ortiz",
-      handle: "@lenatravels",
-      avatar: "https://randomuser.me/api/portraits/women/63.jpg",
-    },
     stats: { likes: "3.1k", comments: "214", shares: "98" },
     comments: [
       {
@@ -46,11 +50,6 @@ const galleryItems = [
     src: "https://images.unsplash.com/photo-1508057198894-247b23fe5ade",
     alt: "Neon lights in a cyberpunk-style city",
     title: "Neon Nightscape",
-    user: {
-      name: "Ravi Patel",
-      handle: "@ravinights",
-      avatar: "https://randomuser.me/api/portraits/men/35.jpg",
-    },
     stats: { likes: "5.6k", comments: "612", shares: "340" },
     comments: [
       {
@@ -66,11 +65,6 @@ const galleryItems = [
     src: "https://images.unsplash.com/photo-1489515217757-5fd1be406fef",
     alt: "Snowy evening with city tram",
     title: "Winter Commute",
-    user: {
-      name: "Kai Rivers",
-      handle: "@kai.snap",
-      avatar: "https://randomuser.me/api/portraits/men/71.jpg",
-    },
     stats: { likes: "1.9k", comments: "98", shares: "54" },
     comments: [
       {
@@ -86,11 +80,6 @@ const galleryItems = [
     src: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
     alt: "Diver exploring underwater reef",
     title: "Deep Blue Drift",
-    user: {
-      name: "Hannah Lee",
-      handle: "@hannahdives",
-      avatar: "https://randomuser.me/api/portraits/women/29.jpg",
-    },
     stats: { likes: "4.8k", comments: "340", shares: "152" },
     comments: [
       {
@@ -106,11 +95,6 @@ const galleryItems = [
     src: "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b",
     alt: "Minimalist museum interior",
     title: "Gallery Whisper",
-    user: {
-      name: "Marta Quinn",
-      handle: "@martasketch",
-      avatar: "https://randomuser.me/api/portraits/women/48.jpg",
-    },
     stats: { likes: "2.2k", comments: "156", shares: "63" },
     comments: [
       {
@@ -126,11 +110,6 @@ const galleryItems = [
     src: "https://images.unsplash.com/photo-1508175800971-6bfe1057f629",
     alt: "Color powder celebration",
     title: "Colorburst Moment",
-    user: {
-      name: "Sonia Ray",
-      handle: "@soniashows",
-      avatar: "https://randomuser.me/api/portraits/women/23.jpg",
-    },
     stats: { likes: "7.4k", comments: "812", shares: "501" },
     comments: [
       {
@@ -146,11 +125,6 @@ const galleryItems = [
     src: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429",
     alt: "Aurora borealis above snowy mountains",
     title: "Polar Lightscape",
-    user: {
-      name: "Oskar Lind",
-      handle: "@oskarroams",
-      avatar: "https://randomuser.me/api/portraits/men/54.jpg",
-    },
     stats: { likes: "6.3k", comments: "455", shares: "287" },
     comments: [
       {
@@ -166,11 +140,6 @@ const galleryItems = [
     src: "https://images.unsplash.com/photo-1500534311580-87394c659309",
     alt: "Traveler walking through desert dunes",
     title: "Dune Wanderlust",
-    user: {
-      name: "Eli Turner",
-      handle: "@trail.eli",
-      avatar: "https://randomuser.me/api/portraits/men/46.jpg",
-    },
     stats: { likes: "2.9k", comments: "202", shares: "111" },
     comments: [
       {
@@ -186,11 +155,6 @@ const galleryItems = [
     src: "https://images.unsplash.com/photo-1529429617124-aee0090f0f9c",
     alt: "Abstract architecture with sweeping curves",
     title: "Skyline Rhythm",
-    user: {
-      name: "Noah Brooks",
-      handle: "@cityframe",
-      avatar: "https://randomuser.me/api/portraits/men/28.jpg",
-    },
     stats: { likes: "3.7k", comments: "180", shares: "140" },
     comments: [
       {
@@ -206,11 +170,6 @@ const galleryItems = [
     src: "https://images.unsplash.com/photo-1476041800959-2f6bb412c8ce",
     alt: "Misty morning in a forest",
     title: "Evergreen Haze",
-    user: {
-      name: "Jun Park",
-      handle: "@jun.outdoors",
-      avatar: "https://randomuser.me/api/portraits/men/64.jpg",
-    },
     stats: { likes: "4.1k", comments: "244", shares: "173" },
     comments: [
       {
@@ -358,26 +317,6 @@ function MasonryGallery({ items }: { items: typeof galleryItems }) {
               className="object-cover transition duration-700 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent,rgba(36,24,102,0.32))] opacity-0 transition group-hover:opacity-100" />
-            <div className="absolute inset-x-5 top-5 flex items-center justify-between text-white drop-shadow">
-              <div className="flex items-center gap-3">
-                <div className="relative size-12 overflow-hidden rounded-full border-2 border-white/80 shadow-md">
-                  <Image
-                    src={item.user.avatar}
-                    alt={item.user.name}
-                    fill
-                    unoptimized
-                    className="object-cover"
-                  />
-                </div>
-                <div className="leading-tight">
-                  <p className="text-sm font-semibold">{item.user.name}</p>
-                  <p className="text-xs text-white/80">{item.user.handle}</p>
-                </div>
-              </div>
-              <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-medium text-white/90 backdrop-blur">
-                Featured
-              </span>
-            </div>
           </div>
           <div className="space-y-2 px-5 pb-5 pt-4">
             <h3 className="text-base font-semibold text-[#20115b]">
@@ -386,7 +325,7 @@ function MasonryGallery({ items }: { items: typeof galleryItems }) {
             <p className="text-sm text-[#6a6f97]">
               {item.alt}
             </p>
-            <div className="flex items-center justify-between pt-4 text-sm text-[#5f648c]">
+            <div className="flex items-center gap-2 pt-4 text-xs text-[#5f648c]">
               <ActionPill icon={<FiHeart />} label={item.stats.likes} />
               <ActionPill icon={<FiThumbsDown />} label="42" />
               <ActionPill icon={<FiMessageCircle />} label={item.stats.comments} />
@@ -432,9 +371,9 @@ function ActionPill({
   return (
     <button
       type="button"
-      className="inline-flex items-center gap-2 rounded-full bg-[#eef0ff] px-4 py-2 text-xs font-semibold text-[#443b7e] shadow-sm transition hover:bg-[#e0e4ff]"
+      className="inline-flex items-center gap-1.5 rounded-full bg-[#eef0ff] px-3 py-1.5 text-xs font-semibold text-[#443b7e] shadow-sm transition hover:bg-[#e0e4ff]"
     >
-      <span className="text-base text-[#6756ff]">{icon}</span>
+      <span className="text-sm leading-none text-[#6756ff]">{icon}</span>
       {label}
     </button>
   );
