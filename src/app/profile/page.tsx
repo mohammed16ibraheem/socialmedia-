@@ -2,10 +2,9 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import Link from "next/link";
+import { useState } from "react";
 import {
   FiHeart,
-  FiMail,
   FiMessageCircle,
   FiShare2,
   FiThumbsDown,
@@ -14,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import MainNav from "@/components/navigation/main-nav";
 
 const profileStats = [
   { id: "followers", label: "Followers", value: "1k" },
@@ -191,7 +190,7 @@ export default function ProfilePage() {
     <div className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,#f6f7ff,60%,#ecefff)]">
       <div className="pointer-events-none absolute inset-x-0 -top-36 mx-auto h-[320px] max-w-5xl rounded-full bg-[radial-gradient(circle,#7d76ff20,transparent_70%)]" />
 
-      <div className="relative mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-10 px-6 py-12">
+      <div className="relative mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-10 px-6 pb-32 pt-12">
         <header className="relative overflow-hidden rounded-[48px] border border-[#dfe4ff] bg-white/85 shadow-[0_30px_80px_rgba(102,91,255,0.18)] backdrop-blur-xl">
           <div className="relative h-[240px] bg-[#8ca2ff]">
             <Image
@@ -204,22 +203,7 @@ export default function ProfilePage() {
             />
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(52,37,197,0.45)_0%,rgba(35,18,131,0.65)_100%)]" />
 
-            <div className="absolute inset-x-0 top-6 flex items-center justify-between px-6">
-              <Link
-                href="#"
-                className="inline-flex size-12 items-center justify-center rounded-full bg-white/85 text-[#20115b] shadow-[0_12px_30px_rgba(55,38,123,0.18)] transition hover:bg-white"
-                aria-label="Back to feed"
-              >
-                ←
-              </Link>
-              <button
-                type="button"
-                className="inline-flex size-11 items-center justify-center rounded-full bg-white/40 text-[#20115b] shadow-[0_8px_24px_rgba(55,38,123,0.12)] backdrop-blur transition hover:bg-white/60 hover:shadow-[0_12px_30px_rgba(55,38,123,0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6756ff]/40"
-                aria-label="Open inbox"
-              >
-                <FiMail className="text-lg" />
-              </button>
-            </div>
+            <div className="absolute inset-x-0 top-6 flex items-center justify-end px-6" />
           </div>
 
           <div className="relative z-10 -mt-20 px-10 pb-10">
@@ -297,6 +281,10 @@ export default function ProfilePage() {
             <MasonryGallery items={galleryItems} />
           </CardContent>
         </Card>
+      </div>
+
+      <div className="pointer-events-auto fixed inset-x-0 bottom-6 px-6">
+        <MainNav />
       </div>
     </div>
   );
