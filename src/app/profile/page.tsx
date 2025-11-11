@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import {
   FiHeart,
+  FiMail,
   FiMessageCircle,
   FiShare2,
   FiThumbsDown,
@@ -213,17 +214,17 @@ export default function ProfilePage() {
               </Link>
               <button
                 type="button"
-                className="inline-flex size-12 items-center justify-center rounded-full bg-white/85 text-[#20115b] shadow-[0_12px_30px_rgba(55,38,123,0.18)] transition hover:bg-white"
+                className="inline-flex size-11 items-center justify-center rounded-full bg-white/40 text-[#20115b] shadow-[0_8px_24px_rgba(55,38,123,0.12)] backdrop-blur transition hover:bg-white/60 hover:shadow-[0_12px_30px_rgba(55,38,123,0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6756ff]/40"
                 aria-label="Open inbox"
               >
-                ✉️
+                <FiMail className="text-lg" />
               </button>
             </div>
           </div>
 
           <div className="relative z-10 -mt-20 px-10 pb-10">
             <div className="flex flex-col items-center gap-7 text-center">
-              <div className="relative h-32 w-32 overflow-hidden rounded-full border-[6px] border-white shadow-[0_25px_60px_rgba(54,43,153,0.25)]">
+              <div className="relative h-36 w-36 overflow-hidden rounded-full border-[6px] border-white shadow-[0_25px_60px_rgba(54,43,153,0.25)]">
                 <Image
                   src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1"
                   alt="Catherine Rivera profile"
