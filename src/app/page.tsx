@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import {
@@ -140,6 +141,7 @@ const footerLinks = [
 ];
 
 export default function Home() {
+  const router = useRouter();
   const [activeCard, setActiveCard] = useState<string | null>(null);
   const [isSignup, setIsSignup] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -155,6 +157,10 @@ export default function Home() {
     setIsSignup((prev) => !prev);
     setShowPassword(false);
     setShowConfirmPassword(false);
+  };
+
+  const navigateToProfile = () => {
+    router.push("/profile");
   };
 
   return (
@@ -561,12 +567,14 @@ export default function Home() {
                   <Button
                     variant="outline"
                     className="h-12 w-full rounded-full border-[#ccd2ff] bg-white text-base font-semibold text-[#4058ff] shadow-none transition-colors hover:border-[#b7c0ff] hover:bg-[#eef0ff]"
+                    onClick={navigateToProfile}
                   >
                     <FcGoogle className="text-xl" />
                     Continue with Gmail
                   </Button>
                   <Button
                     className="h-12 w-full rounded-full bg-[#1d1550] text-base font-semibold text-white shadow-[0_10px_30px_rgba(51,38,123,0.25)] transition-colors hover:bg-[#2b1f7a]"
+                    onClick={navigateToProfile}
                   >
                     <RiWallet3Line className="text-lg" />
                     Connect Web3 Wallet
