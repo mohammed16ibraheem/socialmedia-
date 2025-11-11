@@ -53,7 +53,7 @@ export function MainNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="sticky bottom-6 z-50 mx-auto flex w-full max-w-3xl items-center justify-around rounded-full border border-white/60 bg-white/35 px-4 py-3 text-sm font-medium text-[#5f648c] shadow-[0_25px_65px_rgba(45,37,120,0.22)] backdrop-blur-xl">
+    <nav className="sticky bottom-6 z-50 mx-auto flex w-full max-w-3xl items-center justify-around rounded-full border border-white/40 bg-white/20 px-4 py-3 text-sm font-medium text-[#5f648c] shadow-[0_18px_55px_rgba(45,37,120,0.16)] backdrop-blur-2xl">
       {primaryNavItems.map(({ href, label, icon: Icon, disabled, avatar }) => {
         const isActive =
           pathname === href || (href !== "/" && pathname?.startsWith(href));
