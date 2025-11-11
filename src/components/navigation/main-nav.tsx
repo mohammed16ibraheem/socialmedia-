@@ -3,9 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 import {
   FiHome,
-  FiCompass,
+  FiGlobe,
   FiUser,
   FiSearch,
   FiBell,
@@ -27,7 +28,8 @@ const primaryNavItems = [
   {
     href: "/explore",
     label: "Explore",
-    icon: FiCompass,
+    icon: FiGlobe,
+    animated: true,
   },
   {
     href: "/messages",
@@ -54,9 +56,13 @@ export function MainNav() {
 
   return (
     <nav className="sticky bottom-6 z-50 mx-auto flex w-full max-w-3xl items-center justify-around rounded-full border border-white/40 bg-white/20 px-4 py-3 text-sm font-medium text-[#5f648c] shadow-[0_18px_55px_rgba(45,37,120,0.16)] backdrop-blur-2xl">
-      {primaryNavItems.map(({ href, label, icon: Icon, disabled, avatar }) => {
+      {primaryNavItems.map(
+        ({ href, label, icon: Icon, disabled, avatar, animated }) => {
         const isActive =
           pathname === href || (href !== "/" && pathname?.startsWith(href));
+          const iconClass = `text-lg ${
+            isActive ? "text-[#6756ff]" : "text-current"
+          }`;
 
         const content = (
           <span
@@ -86,32 +92,40 @@ export function MainNav() {
                     priority
                   />
                 </span>
+              ) : animated ? (
+                <motion.span
+                  animate={{ rotate: -360 }}
+                  transition={{ duration: 14, repeat: Infinity, ease: "linear" }}
+                >
+                  <Icon className={iconClass} />
+                </motion.span>
               ) : (
-                <Icon
-                  className={`text-lg ${
-                    isActive ? "text-[#6756ff]" : "text-current"
-                  }`}
-                />
+                <Icon className={iconClass} />
               )}
             </span>
             <span className="text-xs font-semibold">{label}</span>
           </span>
         );
 
-        if (disabled) {
+          if (disabled) {
+            return (
+              <span key={label} className="opacity-75" aria-disabled="true">
+                {content}
+              </span>
+            );
+          }
+
           return (
-            <span key={label} className="opacity-75" aria-disabled="true">
+            <Link
+              key={label}
+              href={href}
+              aria-current={isActive ? "page" : false}
+            >
               {content}
-            </span>
+            </Link>
           );
         }
-
-        return (
-          <Link key={label} href={href} aria-current={isActive ? "page" : false}>
-            {content}
-          </Link>
-        );
-      })}
+      )}
     </nav>
   );
 }
