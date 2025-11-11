@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 const profileStats = [
   { id: "followers", label: "Followers", value: "1k" },
@@ -189,7 +190,7 @@ export default function ProfilePage() {
     <div className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,#f6f7ff,60%,#ecefff)]">
       <div className="pointer-events-none absolute inset-x-0 -top-36 mx-auto h-[320px] max-w-5xl rounded-full bg-[radial-gradient(circle,#7d76ff20,transparent_70%)]" />
 
-      <div className="relative mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-10 px-6 py-12 md:px-10">
+      <div className="relative mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-10 px-6 py-12">
         <header className="relative overflow-hidden rounded-[48px] border border-[#dfe4ff] bg-white/85 shadow-[0_30px_80px_rgba(102,91,255,0.18)] backdrop-blur-xl">
           <div className="relative h-[240px] bg-[#8ca2ff]">
             <Image
@@ -220,8 +221,8 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="relative z-10 -mt-20 px-6 pb-10 sm:px-10 lg:px-14">
-            <div className="flex flex-col items-center gap-6 text-center">
+          <div className="relative z-10 -mt-20 px-10 pb-10">
+            <div className="flex flex-col items-center gap-7 text-center">
               <div className="relative h-32 w-32 overflow-hidden rounded-full border-[6px] border-white shadow-[0_25px_60px_rgba(54,43,153,0.25)]">
                 <Image
                   src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1"
@@ -248,14 +249,14 @@ export default function ProfilePage() {
                 <h1 className="text-2xl font-semibold text-[#20115b]">
                   @Catherine12
                 </h1>
-                <p className="max-w-xl text-sm leading-relaxed text-[#5f648c] sm:text-base">
+                <p className="max-w-xl text-base leading-relaxed text-[#5f648c]">
                   My name is Catherine. I like dancing in the rain and travelling
                   all around the world.
                 </p>
               </div>
 
               <div className="flex flex-wrap items-center justify-center gap-4">
-                <Button className="h-12 rounded-full bg-[linear-gradient(135deg,#6f5cff,#8d77ff)] px-8 text-base font-semibold text-white shadow-[0_18px_40px_rgba(111,92,255,0.25)] transition hover:brightness-105">
+                <Button className="h-12 rounded-full bg-[linear-gradient(135deg,#6f5cff,#8d77ff)] px-8 text-base font-semibold text-white shadow-[0_18px_40px_rgba(111,92,255,0.25)] transition duration-300 hover:bg-[linear-gradient(135deg,#7c6eff,#a38dff)] hover:shadow-[0_22px_55px_rgba(111,92,255,0.35)]">
                   Follow
                 </Button>
                 <Button className="h-12 rounded-full bg-white px-8 text-base font-semibold text-[#20115b] shadow-[0_18px_40px_rgba(72,59,177,0.18)] transition hover:bg-[#f1f3ff]">
@@ -267,8 +268,8 @@ export default function ProfilePage() {
         </header>
 
         <Card className="border-[#dfe4ff] bg-white/80 shadow-[0_25px_70px_rgba(92,75,213,0.12)] backdrop-blur-xl">
-          <CardContent className="space-y-10 p-6 sm:p-10">
-            <nav className="flex flex-wrap items-center justify-center gap-6 text-sm font-medium text-[#7d82a8]">
+          <CardContent className="space-y-10 p-8">
+            <nav className="flex items-center justify-center gap-6 text-base font-medium text-[#7d82a8] sm:gap-8 sm:text-lg lg:gap-10 lg:text-xl">
               {profileTabs.map((tab, index) => (
                 <button
                   key={tab}
@@ -301,14 +302,15 @@ export default function ProfilePage() {
 }
 
 function MasonryGallery({ items }: { items: typeof galleryItems }) {
+
   return (
-    <div className="columns-1 gap-4 sm:columns-2 lg:columns-3 lg:gap-6">
+    <div className="columns-1 gap-4 sm:columns-2 sm:gap-5 lg:columns-3 lg:gap-6">
       {items.map((item) => (
         <article
           key={item.id}
-          className="group mb-4 break-inside-avoid overflow-hidden rounded-[28px] border border-[#e4e8ff] bg-white/90 shadow-[0_18px_40px_rgba(92,75,213,0.12)] transition duration-500 hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(92,75,213,0.16)]"
+          className="group mb-4 break-inside-avoid overflow-hidden rounded-[24px] border border-[#e4e8ff] bg-white/90 shadow-[0_18px_40px_rgba(92,75,213,0.12)] transition duration-500 hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(92,75,213,0.16)] sm:rounded-[28px]"
         >
-          <div className="relative h-[240px] sm:h-[280px]">
+          <div className="relative h-[200px] sm:h-[240px] lg:h-[280px]">
             <Image
               src={`${item.src}?auto=format&fit=crop&w=900&q=80`}
               alt={item.alt}
@@ -318,21 +320,21 @@ function MasonryGallery({ items }: { items: typeof galleryItems }) {
             />
             <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent,rgba(36,24,102,0.32))] opacity-0 transition group-hover:opacity-100" />
           </div>
-          <div className="space-y-2 px-5 pb-5 pt-4">
-            <h3 className="text-base font-semibold text-[#20115b]">
-              {item.title}
-            </h3>
-            <p className="text-sm text-[#6a6f97]">
-              {item.alt}
-            </p>
-            <div className="flex items-center gap-2 pt-4 text-xs text-[#5f648c]">
+          <div className="space-y-3 px-4 pb-5 pt-4 sm:px-5">
+            <div>
+              <h3 className="text-base font-semibold text-[#20115b]">
+                {item.title}
+              </h3>
+              <p className="mt-1 text-sm text-[#6a6f97]">{item.alt}</p>
+            </div>
+            <div className="flex items-center gap-1.5 pt-2 pl-1 text-xs text-[#5f648c] sm:text-sm">
               <ActionPill icon={<FiHeart />} label={item.stats.likes} />
               <ActionPill icon={<FiThumbsDown />} label="42" />
               <ActionPill icon={<FiMessageCircle />} label={item.stats.comments} />
               <ActionPill icon={<FiShare2 />} label={item.stats.shares} />
             </div>
-            <div className="mt-4 flex items-start gap-3 rounded-2xl bg-[#f1f3ff] px-4 py-3 text-sm">
-              <div className="relative size-9 overflow-hidden rounded-full border border-white/60 shadow">
+            <div className="flex items-start gap-3 rounded-2xl bg-[#f1f3ff] px-3 py-3 text-sm sm:px-4">
+              <div className="relative size-9 shrink-0 overflow-hidden rounded-full border border-white/60 shadow">
                 <Image
                   src={item.comments[0].avatar}
                   alt={item.comments[0].author}
@@ -341,15 +343,15 @@ function MasonryGallery({ items }: { items: typeof galleryItems }) {
                   className="object-cover"
                 />
               </div>
-              <div className="flex-1 space-y-1 text-left">
+              <div className="flex min-w-0 flex-1 flex-col gap-1 text-left text-sm sm:text-base">
                 <p className="font-semibold text-[#20115b]">
                   {item.comments[0].author}
                 </p>
-                <p className="text-[#6a6f97]">{item.comments[0].text}</p>
+                <TruncatedComment itemId={item.id} text={item.comments[0].text} />
               </div>
               <button
                 type="button"
-                className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#6756ff] shadow-sm transition hover:bg-[#e8eaff]"
+                className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#6756ff] shadow-sm transition hover:bg-[#e8eaff] sm:text-sm"
               >
                 Reply
               </button>
@@ -371,10 +373,48 @@ function ActionPill({
   return (
     <button
       type="button"
-      className="inline-flex items-center gap-1.5 rounded-full bg-[#eef0ff] px-3 py-1.5 text-xs font-semibold text-[#443b7e] shadow-sm transition hover:bg-[#e0e4ff]"
+      className="inline-flex min-w-[56px] items-center justify-center gap-1.5 rounded-full bg-[#eef0ff] px-2.5 py-1.5 text-xs font-semibold text-[#443b7e] shadow-sm transition hover:bg-[#e0e4ff] sm:min-w-[60px] sm:px-3 sm:text-sm"
     >
-      <span className="text-sm leading-none text-[#6756ff]">{icon}</span>
-      {label}
+      <span className="text-sm leading-none text-[#6756ff] sm:text-base">
+        {icon}
+      </span>
+      <span className="leading-none">{label}</span>
+    </button>
+  );
+}
+
+function TruncatedComment({
+  itemId,
+  text,
+}: {
+  itemId: string;
+  text: string;
+}) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const shouldTruncate = text.length > 48;
+  const truncatedText = `${text.slice(0, 48).trimEnd()}…`;
+  const displayText = isExpanded || !shouldTruncate ? text : truncatedText;
+
+  return (
+    <button
+      type="button"
+      onClick={() => setIsExpanded((prev) => !prev)}
+      className="max-w-full text-left text-[#6a6f97] transition hover:text-[#4b5295] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6756ff]/40"
+      aria-expanded={isExpanded}
+      aria-controls={`comment-${itemId}`}
+    >
+      <span
+        id={`comment-${itemId}`}
+        className="inline-flex max-w-full items-center gap-2 truncate align-middle"
+      >
+        <span className="truncate">{displayText}</span>
+        {shouldTruncate && !isExpanded && (
+          <span className="text-xs font-semibold text-[#6756ff]">More</span>
+        )}
+      </span>
+      {shouldTruncate && isExpanded && (
+        <span className="ml-2 text-xs font-semibold text-[#6756ff]">Show less</span>
+      )}
     </button>
   );
 }
