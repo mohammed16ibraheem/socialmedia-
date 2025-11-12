@@ -10,6 +10,8 @@ import {
   FiThumbsDown,
 } from "react-icons/fi";
 
+import profileHeader from "../../../images/3.jpg";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -192,18 +194,14 @@ export default function ProfilePage() {
 
       <div className="relative mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-10 px-6 pb-32 pt-12">
         <header className="relative overflow-hidden rounded-[48px] border border-[#dfe4ff] bg-white/85 shadow-[0_30px_80px_rgba(102,91,255,0.18)] backdrop-blur-xl">
-          <div className="relative h-[240px] bg-[#8ca2ff]">
+          <div className="relative h-[240px]">
             <Image
-              src="https://images.unsplash.com/photo-1526481280695-3c469c042f27"
+              src={profileHeader}
               alt="Abstract color waves"
               fill
               priority
-              unoptimized
               className="object-cover"
             />
-            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(52,37,197,0.45)_0%,rgba(35,18,131,0.65)_100%)]" />
-
-            <div className="absolute inset-x-0 top-6 flex items-center justify-end px-6" />
           </div>
 
           <div className="relative z-10 -mt-20 px-10 pb-10">
