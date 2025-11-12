@@ -1,104 +1,98 @@
 "use client";
 
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { FiPlayCircle } from "react-icons/fi";
+import { FiPlayCircle, FiSearch } from "react-icons/fi";
 
 import MainNav from "@/components/navigation/main-nav";
 
-const exploreItems = [
-  {
-    id: "e1",
-    src: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
-    alt: "Sunrise silhouette",
-    type: "photo",
-  },
-  {
-    id: "e2",
-    src: "https://images.unsplash.com/photo-1529429617124-aee0090f0f9c",
-    alt: "Modern architecture",
-    type: "photo",
-  },
-  {
-    id: "e3",
-    src: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429",
-    alt: "Aurora borealis",
-    type: "video",
-  },
-  {
-    id: "e4",
-    src: "https://images.unsplash.com/photo-1500534311580-87394c659309",
-    alt: "Traveler in desert",
-    type: "photo",
-  },
-  {
-    id: "e5",
-    src: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-    alt: "Diver underwater",
-    type: "video",
-  },
-  {
-    id: "e6",
-    src: "https://images.unsplash.com/photo-1508175800971-6bfe1057f629",
-    alt: "Color festival",
-    type: "photo",
-  },
-  {
-    id: "e7",
-    src: "https://images.unsplash.com/photo-1489515217757-5fd1be406fef",
-    alt: "Winter evening tram",
-    type: "video",
-  },
-  {
-    id: "e8",
-    src: "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b",
-    alt: "Museum interior",
-    type: "photo",
-  },
-  {
-    id: "e9",
-    src: "https://images.unsplash.com/photo-1476041800959-2f6bb412c8ce",
-    alt: "Misty forest",
-    type: "photo",
-  },
-  {
-    id: "e10",
-    src: "https://images.unsplash.com/photo-1544723795-3fb6469f5b39",
-    alt: "Portrait with colors",
-    type: "photo",
-  },
-  {
-    id: "e11",
-    src: "https://images.unsplash.com/photo-1456327102063-fb5054efe647",
-    alt: "City lights at night",
-    type: "video",
-  },
-  {
-    id: "e12",
-    src: "https://images.unsplash.com/photo-1504674900247-0877df9cc836",
-    alt: "Chef plating dish",
-    type: "photo",
-  },
-];
-
-const layoutSpans = [
-  "col-span-2 row-span-2",
-  "row-span-1",
-  "row-span-1",
-  "col-span-1 row-span-2",
-  "row-span-1",
-  "row-span-1",
-  "col-span-2 row-span-1",
-  "row-span-1",
-  "row-span-1",
-  "row-span-1",
-  "row-span-1",
-  "col-span-2 row-span-1",
-];
+type ExploreMedia = {
+  id: string;
+  type: "photo" | "video";
+  src: string;
+  alt: string;
+  creator: string;
+  link: string;
+  clientId?: string;
+};
 
 export default function ExplorePage() {
+  const [items, setItems] = useState<ExploreMedia[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const pageRef = useRef(1);
+
+  const loadItems = useCallback(async () => {
+    if (loading || !hasMore) return;
+    setLoading(true);
+    setError(null);
+
+    const currentPage = pageRef.current;
+
+    try {
+      const response = await fetch(`/api/pexels?page=${currentPage}`, {
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body.error ?? "Failed to load explore feed.");
+      }
+
+      const data = (await response.json()) as {
+        items: ExploreMedia[];
+        hasMore: boolean;
+      };
+
+      const enrichedItems = (data.items ?? []).map((item, index) => ({
+        ...item,
+        clientId: `${item.id}-${currentPage}-${Date.now()}-${index}`,
+      }));
+
+      setItems((prev) => [...prev, ...enrichedItems]);
+      setHasMore(Boolean(data.hasMore));
+      pageRef.current = currentPage + 1;
+    } catch (caught) {
+      setError(
+        caught instanceof Error
+          ? caught.message
+          : "Something went wrong fetching explore content."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [loading, hasMore]);
+
+  useEffect(() => {
+    loadItems();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!sentinelRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry.isIntersecting) {
+          loadItems();
+        }
+      },
+      { rootMargin: "200px" }
+    );
+
+    observer.observe(sentinelRef.current);
+
+    return () => observer.disconnect();
+  }, [loadItems]);
+
+  const gridItems = useMemo(() => items, [items]);
+
   return (
     <div className="relative min-h-screen bg-[radial-gradient(circle_at_top,#f6f7ff,60%,#ecefff)]">
-      <header className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 pt-10 pb-8">
+      <header className="mx-auto flex w/full max-w-5xl flex-col gap-6 px-6 pt-10 pb-8">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold text-[#20115b]">
             Discover creators
@@ -111,7 +105,7 @@ export default function ExplorePage() {
           <input
             type="search"
             placeholder="Search creators, hashtags, audio, places…"
-            className="h-14 w-full rounded-full bg-transparent px-6 pr-24 text-sm text-[#4b4f7a] outline-none placeholder:text-[#9aa0c6]"
+            className="h-14 w/full rounded-full bg-transparent px-6 pr-24 text-sm text-[#4b4f7a] outline-none placeholder:text-[#9aa0c6]"
           />
           <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-[#6756ff]">
             <FiSearch className="text-xl" />
@@ -119,29 +113,50 @@ export default function ExplorePage() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-5xl px-6 pb-32">
-        <div className="grid auto-rows-[160px] grid-cols-2 gap-4 sm:auto-rows-[220px] sm:grid-cols-3 lg:auto-rows-[260px] lg:grid-cols-4">
-          {exploreItems.map((item, index) => (
-            <article
-              key={item.id}
-              className={`group relative overflow-hidden rounded-[28px] border border-[#e4e8ff] bg-white/80 shadow-[0_12px_40px_rgba(104,94,255,0.12)] transition duration-500 hover:-translate-y-1 hover:shadow-[0_20px_70px_rgba(94,82,245,0.18)] ${layoutSpans[index] ?? ""}`}
-            >
-              <Image
-                src={`${item.src}?auto=format&fit=crop&w=900&q=80`}
-                alt={item.alt}
-                fill
-                className="object-cover transition duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(23,19,65,0.05)_0%,rgba(27,23,76,0.4)_100%)] opacity-0 transition group-hover:opacity-100" />
-              {item.type === "video" && (
-                <span className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full bg-black/65 px-3 py-1 text-xs font-semibold text-white shadow">
-                  <FiPlayCircle className="text-base" />
-                  Reels
-                </span>
-              )}
-            </article>
-          ))}
-        </div>
+      <main className="mx-auto w/full max-w-5xl px-6 pb-32">
+        {error ? (
+          <div className="flex min-h-[200px] items-center justify-center rounded-3xl border border-[#e4e8ff] bg-white/80 p-10 text-center text-sm font-medium text-[#844] shadow-[0_20px_70px_rgba(92,75,213,0.12)]">
+            <p>{error}</p>
+          </div>
+        ) : (
+          <div className="grid auto-rows-[160px] grid-cols-2 gap-4 sm:auto-rows-[220px] sm:grid-cols-3 lg:auto-rows-[260px] lg:grid-cols-4">
+            {gridItems.map((item) => (
+              <a
+                key={item.clientId ?? item.id}
+                href={item.link}
+                target="_blank"
+                rel="noreferrer"
+                className="group relative overflow-hidden rounded-[28px] border border-[#e4e8ff] bg-white/80 shadow-[0_12px_40px_rgba(104,94,255,0.12)] transition duration-500 hover:-translate-y-1 hover:shadow-[0_20px_70px_rgba(94,82,245,0.18)]"
+              >
+                <Image
+                  src={item.src}
+                  alt={item.alt}
+                  fill
+                  sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  className="object-cover transition duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(23,19,65,0.05)_0%,rgba(27,23,76,0.4)_100%)] opacity-0 transition group-hover:opacity-100" />
+                <div className="absolute inset-x-4 bottom-4 flex items-center justify-between rounded-full bg-black/45 px-3 py-1 text-xs text-white opacity-0 backdrop-blur transition group-hover:opacity-100">
+                  <span className="truncate font-medium">{item.creator}</span>
+                  {item.type === "video" && (
+                    <span className="inline-flex items-center gap-1 text-white">
+                      <FiPlayCircle className="text-sm" />
+                      Video
+                    </span>
+                  )}
+                </div>
+              </a>
+            ))}
+            {loading &&
+              Array.from({ length: 6 }).map((_, index) => (
+                <div
+                  key={`explore-skeleton-${index}`}
+                  className="animate-pulse rounded-[28px] border border-[#e4e8ff] bg-white/60"
+                />
+              ))}
+          </div>
+        )}
+        <div ref={sentinelRef} className="h-10 w/full" />
       </main>
 
       <div className="pointer-events-auto fixed inset-x-0 bottom-6 px-6">
