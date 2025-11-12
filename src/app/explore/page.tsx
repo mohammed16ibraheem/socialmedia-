@@ -94,15 +94,7 @@ export default function ExplorePage() {
 
   return (
     <div className="relative min-h-screen bg-[radial-gradient(circle_at_top,#f6f7ff,60%,#ecefff)]">
-      <header className="mx-auto flex w/full max-w-5xl flex-col gap-6 px-6 pt-10 pb-8">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-[#20115b]">
-            Discover creators
-          </h1>
-          <span className="rounded-full bg-white/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7d82a8] shadow-sm">
-            Explore
-          </span>
-        </div>
+      <header className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 pt-10 pb-8">
         <div className="relative overflow-hidden rounded-full border border-[#dfe4ff] bg-white/80 shadow-[0_15px_40px_rgba(116,107,255,0.15)] backdrop-blur">
           <input
             type="search"
