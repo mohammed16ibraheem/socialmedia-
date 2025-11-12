@@ -4,14 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import {
-  FiHome,
-  FiGlobe,
-  FiUser,
-  FiSearch,
-  FiBell,
-  FiMail,
-} from "react-icons/fi";
+import { FiBell, FiGlobe, FiHome, FiMail, FiUpload, FiUser } from "react-icons/fi";
 
 const primaryNavItems = [
   {
@@ -20,16 +13,15 @@ const primaryNavItems = [
     icon: FiHome,
   },
   {
-    href: "/search",
-    label: "Search",
-    icon: FiSearch,
-    disabled: true,
-  },
-  {
     href: "/explore",
     label: "Explore",
     icon: FiGlobe,
     animated: true,
+  },
+  {
+    href: "/upload",
+    label: "Upload",
+    icon: FiUpload,
   },
   {
     href: "/messages",

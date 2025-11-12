@@ -5,6 +5,8 @@ type PexelsPhoto = {
   alt?: string;
   photographer: string;
   photographer_url: string;
+  width?: number;
+  height?: number;
   src: {
     original: string;
     large2x?: string;
@@ -22,6 +24,8 @@ type PexelsVideo = {
   id: number;
   image: string;
   url: string;
+  width?: number;
+  height?: number;
   user?: {
     name?: string;
   };
@@ -99,35 +103,52 @@ export async function GET(request: Request) {
       ReturnType<typeof mapPhoto> | ReturnType<typeof mapVideo>
     > = [];
 
+    const buildAspectRatio = (width?: number, height?: number) => {
+      if (!width || !height) {
+        return undefined;
+      }
+      return `${width}/${height}`;
+    };
+
     function mapPhoto(photo: PexelsPhoto) {
+      const source =
+        photo.src.large2x ??
+        photo.src.large ??
+        photo.src.medium ??
+        photo.src.original;
+
       return {
         id: `photo-${photo.id}`,
         type: "photo" as const,
-        src:
-          photo.src.large2x ??
-          photo.src.large ??
-          photo.src.medium ??
-          photo.src.original,
+        src: source,
         alt: photo.alt || `Photo by ${photo.photographer}`,
         creator: photo.photographer,
         link: photo.url || photo.photographer_url,
+        videoUrl: undefined,
+        aspectRatio: buildAspectRatio(photo.width, photo.height),
       };
     }
 
     function mapVideo(video: PexelsVideo) {
+      const preview =
+        video.video_pictures?.[0]?.picture ??
+        video.image ??
+        "";
+
+      const preferredFile =
+        video.video_files?.find((file) => file.quality === "hd") ??
+        video.video_files?.find((file) => file.quality === "sd") ??
+        video.video_files?.[0];
+
       return {
         id: `video-${video.id}`,
         type: "video" as const,
-        src:
-          video.video_pictures?.[0]?.picture ??
-          video.image ??
-          "",
+        src: preview,
+        videoUrl: preferredFile?.link ?? video.url,
         alt: `Video by ${video.user?.name ?? "creator"}`,
         creator: video.user?.name ?? "Creator",
-        link:
-          video.video_files?.find((file) => file.quality === "hd")?.link ??
-          video.video_files?.[0]?.link ??
-          video.url,
+        link: video.url,
+        aspectRatio: buildAspectRatio(video.width, video.height),
       };
     }
 
@@ -141,7 +162,11 @@ export async function GET(request: Request) {
       }
     }
 
-    const items = combined.filter((item) => Boolean(item.src));
+    const items = combined.filter((item) =>
+      item.type === "photo"
+        ? Boolean(item.src)
+        : Boolean(item.src && item.videoUrl)
+    );
 
     return NextResponse.json({
       items,
