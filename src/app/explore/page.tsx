@@ -23,19 +23,32 @@ export default function ExplorePage() {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchInput, setSearchInput] = useState("");
+  const [activeQuery, setActiveQuery] = useState("");
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const pageRef = useRef(1);
   const prefetchingRef = useRef(false);
+  const hasMoreRef = useRef(true);
 
   const loadItems = useCallback(async () => {
-    if (loading || !hasMore) return;
+    if (loading || !hasMoreRef.current) return;
     setLoading(true);
     setError(null);
 
     const currentPage = pageRef.current;
+    const requestQuery = activeQuery;
 
     try {
-      const response = await fetch(`/api/pexels?page=${currentPage}&photos=16&videos=8`, {
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        photos: "16",
+        videos: "8",
+      });
+      if (activeQuery) {
+        params.set("query", activeQuery);
+      }
+
+      const response = await fetch(`/api/pexels?${params.toString()}`, {
         cache: "no-store",
       });
 
@@ -49,13 +62,19 @@ export default function ExplorePage() {
         hasMore: boolean;
       };
 
+      if (requestQuery !== activeQuery) {
+        return;
+      }
+
       const enrichedItems = (data.items ?? []).map((item, index) => ({
         ...item,
         clientId: `${item.id}-${currentPage}-${Date.now()}-${index}`,
       }));
 
       setItems((prev) => [...prev, ...enrichedItems]);
-      setHasMore(Boolean(data.hasMore));
+      const more = Boolean(data.hasMore);
+      setHasMore(more);
+      hasMoreRef.current = more;
       pageRef.current = currentPage + 1;
       prefetchingRef.current = false;
     } catch (caught) {
@@ -65,20 +84,28 @@ export default function ExplorePage() {
           : "Something went wrong fetching explore content."
       );
     } finally {
+      if (requestQuery !== activeQuery) {
+        return;
+      }
       setLoading(false);
     }
-  }, [loading, hasMore]);
+  }, [loading, activeQuery]);
 
   useEffect(() => {
+    setItems([]);
+    pageRef.current = 1;
+    setHasMore(true);
+    hasMoreRef.current = true;
+    setError(null);
+    prefetchingRef.current = false;
+
     loadItems().then(() => {
-      // Prefetch next page immediately after initial load
-      if (hasMore && !prefetchingRef.current) {
+      if (hasMoreRef.current && !prefetchingRef.current) {
         prefetchingRef.current = true;
         loadItems();
       }
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [activeQuery, loadItems]);
 
   useEffect(() => {
     if (!sentinelRef.current) return;
@@ -86,9 +113,9 @@ export default function ExplorePage() {
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
-        if (entry.isIntersecting) {
+        if (entry.isIntersecting && hasMoreRef.current) {
           loadItems().then(() => {
-            if (hasMore && !prefetchingRef.current) {
+            if (hasMoreRef.current && !prefetchingRef.current) {
               prefetchingRef.current = true;
               loadItems();
             }
@@ -108,16 +135,28 @@ export default function ExplorePage() {
   return (
     <div className="relative min-h-screen bg-[radial-gradient(circle_at_top,#f6f7ff,60%,#ecefff)]">
       <header className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 pt-10 pb-8">
-        <div className="relative overflow-hidden rounded-full border border-[#dfe4ff] bg-white/80 shadow-[0_15px_40px_rgba(116,107,255,0.15)] backdrop-blur">
+        <form
+          className="relative overflow-hidden rounded-full border border-[#dfe4ff] bg-white/80 shadow-[0_15px_40px_rgba(116,107,255,0.15)] backdrop-blur"
+          onSubmit={(event) => {
+            event.preventDefault();
+            setActiveQuery(searchInput.trim());
+          }}
+        >
           <input
             type="search"
+            value={searchInput}
+            onChange={(event) => setSearchInput(event.target.value)}
             placeholder="Search creators, hashtags, audio, places…"
             className="h-14 w-full rounded-full bg-transparent px-6 pr-24 text-sm text-[#4b4f7a] outline-none placeholder:text-[#9aa0c6]"
           />
-          <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-[#6756ff]">
+          <button
+            type="submit"
+            className="absolute inset-y-0 right-0 flex h-full w-14 items-center justify-center text-[#6756ff] transition hover:text-[#4a3cc4]"
+            aria-label="Search"
+          >
             <FiSearch className="text-xl" />
-          </div>
-        </div>
+          </button>
+        </form>
       </header>
 
       <main className="mx-auto w-full max-w-5xl px-6 pb-32">
