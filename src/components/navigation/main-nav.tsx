@@ -71,7 +71,7 @@ export function MainNav() {
                 isActive
                   ? "border-[#6756ff]/40 bg-[#6756ff]/20"
                   : "bg-white/70"
-              } ${avatar ? "p-0.5" : "p-2"}`}
+              } ${avatar ? "p-0.5" : "p-2.5"}`}
             >
               {avatar ? (
                 <span className="relative block size-9 overflow-hidden rounded-full border border-white/70">
@@ -89,13 +89,12 @@ export function MainNav() {
                   animate={{ rotate: -360 }}
                   transition={{ duration: 14, repeat: Infinity, ease: "linear" }}
                 >
-                  <Icon className={iconClass} />
+                  <Icon className={`${iconClass} text-2xl`} />
                 </motion.span>
               ) : (
-                <Icon className={iconClass} />
+                <Icon className={`${iconClass} text-2xl`} />
               )}
             </span>
-            <span className="text-xs font-semibold">{label}</span>
           </span>
         );
 

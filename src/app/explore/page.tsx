@@ -25,6 +25,7 @@ export default function ExplorePage() {
   const [error, setError] = useState<string | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const pageRef = useRef(1);
+  const prefetchingRef = useRef(false);
 
   const loadItems = useCallback(async () => {
     if (loading || !hasMore) return;
@@ -34,7 +35,7 @@ export default function ExplorePage() {
     const currentPage = pageRef.current;
 
     try {
-      const response = await fetch(`/api/pexels?page=${currentPage}`, {
+      const response = await fetch(`/api/pexels?page=${currentPage}&photos=16&videos=8`, {
         cache: "no-store",
       });
 
@@ -56,6 +57,7 @@ export default function ExplorePage() {
       setItems((prev) => [...prev, ...enrichedItems]);
       setHasMore(Boolean(data.hasMore));
       pageRef.current = currentPage + 1;
+      prefetchingRef.current = false;
     } catch (caught) {
       setError(
         caught instanceof Error
@@ -68,7 +70,13 @@ export default function ExplorePage() {
   }, [loading, hasMore]);
 
   useEffect(() => {
-    loadItems();
+    loadItems().then(() => {
+      // Prefetch next page immediately after initial load
+      if (hasMore && !prefetchingRef.current) {
+        prefetchingRef.current = true;
+        loadItems();
+      }
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -79,16 +87,21 @@ export default function ExplorePage() {
       (entries) => {
         const entry = entries[0];
         if (entry.isIntersecting) {
-          loadItems();
+          loadItems().then(() => {
+            if (hasMore && !prefetchingRef.current) {
+              prefetchingRef.current = true;
+              loadItems();
+            }
+          });
         }
       },
-      { rootMargin: "200px" }
+      { rootMargin: "800px 0px" }
     );
 
     observer.observe(sentinelRef.current);
 
     return () => observer.disconnect();
-  }, [loadItems]);
+  }, [loadItems, hasMore]);
 
   const gridItems = useMemo(() => items, [items]);
 
@@ -142,12 +155,9 @@ export default function ExplorePage() {
                 );
 
               return (
-                <a
+                <div
                   key={item.clientId ?? item.id}
-                  href={item.link}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="group relative mb-4 block overflow-hidden rounded-[28px] border border-[#e4e8ff] bg-white/80 shadow-[0_12px_40px_rgba(104,94,255,0.12)] transition duration-500 hover:-translate-y-1 hover:shadow-[0_20px_70px_rgba(94,82,245,0.18)] break-inside-avoid"
+                  className="group relative mb-4 overflow-hidden rounded-[28px] border border-[#e4e8ff] bg-white/80 shadow-[0_12px_40px_rgba(104,94,255,0.12)] transition duration-500 hover:-translate-y-1 hover:shadow-[0_20px_70px_rgba(94,82,245,0.18)] break-inside-avoid"
                 >
                   <div
                     className="relative w-full overflow-hidden"
@@ -165,7 +175,7 @@ export default function ExplorePage() {
                       </span>
                     )}
                   </div>
-                </a>
+                </div>
               );
             })}
             {loading &&

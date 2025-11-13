@@ -42,6 +42,19 @@ type PexelsVideo = {
   }>;
 };
 
+const SEARCH_TOPICS = [
+  "nature",
+  "city",
+  "portrait",
+  "technology",
+  "travel",
+  "abstract",
+  "wildlife",
+  "sports",
+  "fashion",
+  "food",
+];
+
 export async function GET(request: Request) {
   const apiKey = process.env.PEXELS_API_KEY;
 
@@ -65,15 +78,19 @@ export async function GET(request: Request) {
     searchParams.get("videos") ?? "6",
     10
   );
+  const topicIndex = Math.floor(Math.random() * SEARCH_TOPICS.length);
+  const topic = SEARCH_TOPICS[topicIndex];
 
   try {
-    const photoUrl = new URL("https://api.pexels.com/v1/curated");
+    const photoUrl = new URL("https://api.pexels.com/v1/search");
     photoUrl.searchParams.set("per_page", photosPerPage.toString());
     photoUrl.searchParams.set("page", page.toString());
+    photoUrl.searchParams.set("query", topic);
 
-    const videoUrl = new URL("https://api.pexels.com/videos/popular");
+    const videoUrl = new URL("https://api.pexels.com/videos/search");
     videoUrl.searchParams.set("per_page", videosPerPage.toString());
     videoUrl.searchParams.set("page", page.toString());
+    videoUrl.searchParams.set("query", topic);
 
     const headers = {
       Authorization: apiKey,
@@ -162,11 +179,13 @@ export async function GET(request: Request) {
       }
     }
 
-    const items = combined.filter((item) =>
-      item.type === "photo"
-        ? Boolean(item.src)
-        : Boolean(item.src && item.videoUrl)
-    );
+    const items = combined
+      .filter((item) =>
+        item.type === "photo"
+          ? Boolean(item.src)
+          : Boolean(item.src && item.videoUrl)
+      )
+      .sort(() => Math.random() - 0.5);
 
     return NextResponse.json({
       items,

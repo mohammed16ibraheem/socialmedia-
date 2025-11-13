@@ -10,8 +10,6 @@ import {
   FiThumbsDown,
 } from "react-icons/fi";
 
-import profileHeader from "../../../images/3.jpg";
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -196,8 +194,8 @@ export default function ProfilePage() {
         <header className="relative overflow-hidden rounded-[48px] border border-[#dfe4ff] bg-white/85 shadow-[0_30px_80px_rgba(102,91,255,0.18)] backdrop-blur-xl">
           <div className="relative h-[240px]">
             <Image
-              src={profileHeader}
-              alt="Abstract color waves"
+              src="/images/3.png"
+              alt="Profile cover image"
               fill
               priority
               className="object-cover"
