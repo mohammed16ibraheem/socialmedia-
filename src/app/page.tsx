@@ -412,21 +412,21 @@ export default function Home() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-3">
-                <Button
-                  variant="outline"
-                  className="h-12 w-full rounded-full border-[#ccd2ff] bg-white text-base font-semibold text-[#4058ff] shadow-none transition-colors hover:border-[#b7c0ff] hover:bg-[#eef0ff]"
+                  <Button
+                    variant="outline"
+                    className="h-12 w-full rounded-full border-[#ccd2ff] bg-white text-base font-semibold text-[#4058ff] shadow-none transition-colors hover:border-[#b7c0ff] hover:bg-[#eef0ff]"
                   onClick={navigateToProfile}
-                >
-                  <FcGoogle className="text-xl" />
-                  Continue with Gmail
-                </Button>
-                <Button
-                  className="h-12 w-full rounded-full bg-[#1d1550] text-base font-semibold text-white shadow-[0_10px_30px_rgba(51,38,123,0.25)] transition-colors hover:bg-[#2b1f7a]"
+                  >
+                    <FcGoogle className="text-xl" />
+                    Continue with Gmail
+                  </Button>
+                  <Button
+                    className="h-12 w-full rounded-full bg-[#1d1550] text-base font-semibold text-white shadow-[0_10px_30px_rgba(51,38,123,0.25)] transition-colors hover:bg-[#2b1f7a]"
                   onClick={navigateToProfile}
-                >
-                  <RiWallet3Line className="text-lg" />
-                  Connect Web3 Wallet
-                </Button>
+                  >
+                    <RiWallet3Line className="text-lg" />
+                    Connect Web3 Wallet
+                  </Button>
                 <Button
                   className="h-12 w-full rounded-full bg-[#1877f2] text-base font-semibold text-white shadow-[0_10px_30px_rgba(24,119,242,0.25)] transition-colors hover:bg-[#0e63d5]"
                   onClick={navigateToProfile}

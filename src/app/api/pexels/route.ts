@@ -78,19 +78,37 @@ export async function GET(request: Request) {
     searchParams.get("videos") ?? "6",
     10
   );
-  const topicIndex = Math.floor(Math.random() * SEARCH_TOPICS.length);
-  const topic = SEARCH_TOPICS[topicIndex];
+  
+  // Get the search query from params, or use a random topic if no query provided
+  const userQuery = searchParams.get("query")?.trim();
+  const searchQuery = userQuery || (() => {
+    const topicIndex = Math.floor(Math.random() * SEARCH_TOPICS.length);
+    return SEARCH_TOPICS[topicIndex];
+  })();
 
   try {
-    const photoUrl = new URL("https://api.pexels.com/v1/search");
+    // Use search endpoint when query is provided, otherwise use curated/popular
+    const photoUrl = new URL(
+      userQuery 
+        ? "https://api.pexels.com/v1/search" 
+        : "https://api.pexels.com/v1/curated"
+    );
     photoUrl.searchParams.set("per_page", photosPerPage.toString());
     photoUrl.searchParams.set("page", page.toString());
-    photoUrl.searchParams.set("query", topic);
+    if (userQuery) {
+      photoUrl.searchParams.set("query", searchQuery);
+    }
 
-    const videoUrl = new URL("https://api.pexels.com/videos/search");
+    const videoUrl = new URL(
+      userQuery
+        ? "https://api.pexels.com/videos/search"
+        : "https://api.pexels.com/videos/popular"
+    );
     videoUrl.searchParams.set("per_page", videosPerPage.toString());
     videoUrl.searchParams.set("page", page.toString());
-    videoUrl.searchParams.set("query", topic);
+    if (userQuery) {
+      videoUrl.searchParams.set("query", searchQuery);
+    }
 
     const headers = {
       Authorization: apiKey,

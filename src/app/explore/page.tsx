@@ -29,9 +29,23 @@ export default function ExplorePage() {
   const pageRef = useRef(1);
   const prefetchingRef = useRef(false);
   const hasMoreRef = useRef(true);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const requestIdRef = useRef(0);
+  const isNewSearchRef = useRef(false);
 
   const loadItems = useCallback(async () => {
     if (loading || !hasMoreRef.current) return;
+    
+    // Cancel any previous request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
+    // Create new abort controller for this request
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+    const currentRequestId = ++requestIdRef.current;
+    
     setLoading(true);
     setError(null);
 
@@ -50,7 +64,13 @@ export default function ExplorePage() {
 
       const response = await fetch(`/api/pexels?${params.toString()}`, {
         cache: "no-store",
+        signal: abortController.signal,
       });
+
+      // Check if this request is still current
+      if (currentRequestId !== requestIdRef.current || requestQuery !== activeQuery) {
+        return;
+      }
 
       if (!response.ok) {
         const body = await response.json().catch(() => ({}));
@@ -62,7 +82,8 @@ export default function ExplorePage() {
         hasMore: boolean;
       };
 
-      if (requestQuery !== activeQuery) {
+      // Double-check request is still current before updating state
+      if (currentRequestId !== requestIdRef.current || requestQuery !== activeQuery) {
         return;
       }
 
@@ -71,33 +92,59 @@ export default function ExplorePage() {
         clientId: `${item.id}-${currentPage}-${Date.now()}-${index}`,
       }));
 
-      setItems((prev) => [...prev, ...enrichedItems]);
+      // If this is a new search (page 1), replace items. Otherwise append.
+      if (currentPage === 1 && isNewSearchRef.current) {
+        setItems(enrichedItems);
+        isNewSearchRef.current = false;
+      } else {
+        setItems((prev) => [...prev, ...enrichedItems]);
+      }
       const more = Boolean(data.hasMore);
       setHasMore(more);
       hasMoreRef.current = more;
       pageRef.current = currentPage + 1;
       prefetchingRef.current = false;
     } catch (caught) {
-      setError(
-        caught instanceof Error
-          ? caught.message
-          : "Something went wrong fetching explore content."
-      );
-    } finally {
-      if (requestQuery !== activeQuery) {
+      // Ignore abort errors
+      if (caught instanceof Error && caught.name === "AbortError") {
         return;
       }
-      setLoading(false);
+      
+      // Only set error if this is still the current request
+      if (currentRequestId === requestIdRef.current && requestQuery === activeQuery) {
+        setError(
+          caught instanceof Error
+            ? caught.message
+            : "Something went wrong fetching explore content."
+        );
+      }
+    } finally {
+      // Only update loading state if this is still the current request
+      if (currentRequestId === requestIdRef.current && requestQuery === activeQuery) {
+        setLoading(false);
+      }
     }
   }, [loading, activeQuery]);
 
   useEffect(() => {
-    setItems([]);
+    // Cancel any in-flight requests
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
+    // Increment request ID to invalidate any pending requests
+    requestIdRef.current++;
+    
+    // Reset pagination
     pageRef.current = 1;
     setHasMore(true);
     hasMoreRef.current = true;
     setError(null);
     prefetchingRef.current = false;
+    
+    // Mark as new search - items will be replaced when first page loads
+    isNewSearchRef.current = true;
+    // Don't clear items immediately - wait for new data to arrive to prevent flash
 
     loadItems().then(() => {
       if (hasMoreRef.current && !prefetchingRef.current) {
@@ -113,9 +160,9 @@ export default function ExplorePage() {
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
-        if (entry.isIntersecting && hasMoreRef.current) {
+        if (entry.isIntersecting && hasMoreRef.current && !loading) {
           loadItems().then(() => {
-            if (hasMoreRef.current && !prefetchingRef.current) {
+            if (hasMoreRef.current && !prefetchingRef.current && !loading) {
               prefetchingRef.current = true;
               loadItems();
             }
@@ -128,7 +175,7 @@ export default function ExplorePage() {
     observer.observe(sentinelRef.current);
 
     return () => observer.disconnect();
-  }, [loadItems, hasMore]);
+  }, [loadItems, hasMore, loading]);
 
   const gridItems = useMemo(() => items, [items]);
 
