@@ -116,8 +116,16 @@ export async function GET(request: Request) {
     };
 
     const [photoResponse, videoResponse] = await Promise.all([
-      fetch(photoUrl, { headers, next: { revalidate: 0 } }),
-      fetch(videoUrl, { headers, next: { revalidate: 0 } }),
+      fetch(photoUrl, { 
+        headers, 
+        next: { revalidate: 60 }, // Cache for 60 seconds
+        cache: "force-cache" 
+      }),
+      fetch(videoUrl, { 
+        headers, 
+        next: { revalidate: 60 }, // Cache for 60 seconds
+        cache: "force-cache" 
+      }),
     ]);
 
     if (!photoResponse.ok || !videoResponse.ok) {
@@ -208,10 +216,18 @@ export async function GET(request: Request) {
       )
       .sort(() => Math.random() - 0.5);
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       items,
       hasMore: items.length > 0,
     });
+
+    // Set cache headers to prevent stale content
+    response.headers.set(
+      "Cache-Control",
+      "public, s-maxage=60, stale-while-revalidate=120"
+    );
+
+    return response;
   } catch (error) {
     return NextResponse.json(
       {

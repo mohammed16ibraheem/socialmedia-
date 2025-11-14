@@ -63,7 +63,7 @@ export default function ExplorePage() {
       }
 
       const response = await fetch(`/api/pexels?${params.toString()}`, {
-        cache: "no-store",
+        cache: "default",
         signal: abortController.signal,
       });
 
