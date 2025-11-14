@@ -55,8 +55,8 @@ export default function ExplorePage() {
     try {
       const params = new URLSearchParams({
         page: currentPage.toString(),
-        photos: "16",
-        videos: "8",
+        photos: "12",
+        videos: "4",
       });
       if (activeQuery) {
         params.set("query", activeQuery);
@@ -169,7 +169,7 @@ export default function ExplorePage() {
           });
         }
       },
-      { rootMargin: "800px 0px" }
+      { rootMargin: "400px 0px" }
     );
 
     observer.observe(sentinelRef.current);
@@ -237,6 +237,9 @@ export default function ExplorePage() {
                     fill
                     sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                     className="object-cover"
+                    loading="lazy"
+                    quality={75}
+                    unoptimized={item.src.includes("pexels.com")}
                   />
                 );
 

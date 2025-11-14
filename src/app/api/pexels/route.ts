@@ -70,12 +70,13 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const page = Number.parseInt(searchParams.get("page") ?? "1", 10);
+  // Reduced initial load for faster performance
   const photosPerPage = Number.parseInt(
     searchParams.get("photos") ?? "12",
     10
   );
   const videosPerPage = Number.parseInt(
-    searchParams.get("videos") ?? "6",
+    searchParams.get("videos") ?? "4",
     10
   );
   
@@ -146,10 +147,11 @@ export async function GET(request: Request) {
     };
 
     function mapPhoto(photo: PexelsPhoto) {
+      // Use medium size for faster loading, fallback to large if needed
       const source =
-        photo.src.large2x ??
-        photo.src.large ??
         photo.src.medium ??
+        photo.src.large ??
+        photo.src.small ??
         photo.src.original;
 
       return {
@@ -170,9 +172,10 @@ export async function GET(request: Request) {
         video.image ??
         "";
 
+      // Prefer SD quality for faster loading, fallback to HD if SD not available
       const preferredFile =
-        video.video_files?.find((file) => file.quality === "hd") ??
         video.video_files?.find((file) => file.quality === "sd") ??
+        video.video_files?.find((file) => file.quality === "hd") ??
         video.video_files?.[0];
 
       return {
