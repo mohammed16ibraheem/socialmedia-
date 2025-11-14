@@ -187,69 +187,102 @@ const profileTabs = ["All", "Photos", "Videos"] as const;
 
 export default function ProfilePage() {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,#f6f7ff,60%,#ecefff)]">
-      <div className="pointer-events-none absolute inset-x-0 -top-36 mx-auto h-[320px] max-w-5xl rounded-full bg-[radial-gradient(circle,#7d76ff20,transparent_70%)]" />
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#f6f7ff] via-[#ecefff] to-[#e8ebff]">
+      {/* Animated gradient orbs for background effect */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-gradient-to-br from-[#6756ff]/20 to-[#8c76ff]/10 blur-3xl" />
+        <div className="absolute top-1/2 -left-40 h-96 w-96 rounded-full bg-gradient-to-br from-[#9d8aff]/15 to-[#6f5cff]/10 blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 h-64 w-64 rounded-full bg-gradient-to-br from-[#a38dff]/20 to-transparent blur-3xl" />
+      </div>
 
       <div className="relative mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-10 px-6 pb-32 pt-12">
-        <header className="relative overflow-hidden rounded-[48px] border border-[#dfe4ff] bg-white/85 shadow-[0_30px_80px_rgba(102,91,255,0.18)] backdrop-blur-xl">
-          <div className="relative h-[240px]">
-            <Image
-              src="/images/3.png"
-              alt="Profile cover image"
-              fill
-              priority
-              className="object-cover"
-            />
-          </div>
-
-          <div className="relative z-10 -mt-20 px-10 pb-10">
-            <div className="flex flex-col items-center gap-7 text-center">
-              <div className="relative h-36 w-36 overflow-hidden rounded-full border-[6px] border-white shadow-[0_25px_60px_rgba(54,43,153,0.25)]">
-                <Image
-                  src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1"
-                  alt="Catherine Rivera profile"
-                  fill
-                  priority
-                  unoptimized
-                  className="object-cover"
-                />
-              </div>
-
-              <div className="flex items-center gap-12 text-[#20115b]">
-                {profileStats.map((stat) => (
-                  <div key={stat.id} className="flex flex-col items-center">
-                    <span className="text-2xl font-semibold">{stat.value}</span>
-                    <span className="text-sm font-medium text-[#5f648c]">
-                      {stat.label}
-                    </span>
+        {/* Glassmorphism Profile Header Card */}
+        <motion.header
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="relative overflow-hidden rounded-[32px] border border-white/30 bg-white/40 shadow-[0_8px_32px_0_rgba(102,91,255,0.15)] backdrop-blur-2xl"
+        >
+          {/* Subtle gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-white/40 to-transparent" />
+          
+          <div className="relative z-10 flex flex-col gap-8 p-8 sm:flex-row sm:items-start sm:gap-10 sm:p-10 lg:gap-12">
+            {/* Floating Profile Picture Card - Left Side */}
+            <div className="flex justify-center sm:justify-start">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="relative"
+              >
+                {/* Outer glow effect */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#6756ff]/30 to-[#8c76ff]/20 blur-2xl" />
+                
+                {/* Glassmorphism card for profile picture */}
+                <div className="relative rounded-full border-4 border-white/80 bg-white/60 p-2 shadow-[0_20px_60px_-15px_rgba(102,91,255,0.3)] backdrop-blur-xl">
+                  <div className="relative h-32 w-32 overflow-hidden rounded-full sm:h-40 sm:w-40 lg:h-44 lg:w-44">
+                    <Image
+                      src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1"
+                      alt="Catherine Rivera profile"
+                      fill
+                      priority
+                      unoptimized
+                      className="object-cover"
+                    />
+                    {/* Inner glow */}
+                    <div className="absolute inset-0 rounded-full ring-2 ring-white/50" />
                   </div>
-                ))}
-              </div>
+                </div>
+              </motion.div>
+            </div>
 
+            {/* Profile Info - Right Side (Asymmetric Layout) */}
+            <div className="flex flex-1 flex-col items-center gap-6 text-center sm:items-start sm:text-left">
+              {/* Name and Handle */}
               <div className="space-y-2">
-                <h1 className="text-2xl font-semibold text-[#20115b]">
+                <h1 className="text-3xl font-bold text-[#20115b] sm:text-4xl">
                   @Catherine12
                 </h1>
-                <p className="max-w-xl text-base leading-relaxed text-[#5f648c]">
+                <p className="max-w-xl text-base leading-relaxed text-[#5f648c] sm:text-lg">
                   My name is Catherine. I like dancing in the rain and travelling
                   all around the world.
                 </p>
               </div>
 
-              <div className="flex flex-wrap items-center justify-center gap-4">
-                <Button className="h-12 rounded-full bg-[linear-gradient(135deg,#6f5cff,#8d77ff)] px-8 text-base font-semibold text-white shadow-[0_18px_40px_rgba(111,92,255,0.25)] transition duration-300 hover:bg-[linear-gradient(135deg,#7c6eff,#a38dff)] hover:shadow-[0_22px_55px_rgba(111,92,255,0.35)]">
+              {/* Stats - Horizontal Layout */}
+              <div className="flex items-center gap-8 text-[#20115b]">
+                {profileStats.map((stat, index) => (
+                  <motion.div
+                    key={stat.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
+                    className="flex flex-col items-center sm:items-start"
+                  >
+                    <span className="text-2xl font-bold sm:text-3xl">{stat.value}</span>
+                    <span className="text-sm font-medium text-[#5f648c] sm:text-base">
+                      {stat.label}
+                    </span>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center justify-center gap-4 sm:justify-start">
+                <Button className="h-12 rounded-full bg-gradient-to-r from-[#6f5cff] to-[#8d77ff] px-8 text-base font-semibold text-white shadow-[0_8px_24px_rgba(111,92,255,0.4)] transition-all duration-300 hover:scale-105 hover:shadow-[0_12px_32px_rgba(111,92,255,0.5)]">
                   Follow
                 </Button>
-                <Button className="h-12 rounded-full bg-white px-8 text-base font-semibold text-[#20115b] shadow-[0_18px_40px_rgba(72,59,177,0.18)] transition hover:bg-[#f1f3ff]">
+                <Button className="h-12 rounded-full border-2 border-white/60 bg-white/50 px-8 text-base font-semibold text-[#20115b] shadow-[0_8px_24px_rgba(102,91,255,0.15)] backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:bg-white/70 hover:shadow-[0_12px_32px_rgba(102,91,255,0.2)]">
                   Message
                 </Button>
               </div>
             </div>
           </div>
-        </header>
+        </motion.header>
 
-        <Card className="border-[#dfe4ff] bg-white/80 shadow-[0_25px_70px_rgba(92,75,213,0.12)] backdrop-blur-xl">
-          <CardContent className="space-y-10 p-8">
+        <Card className="relative overflow-hidden rounded-[32px] border border-white/30 bg-white/40 shadow-[0_8px_32px_0_rgba(102,91,255,0.15)] backdrop-blur-2xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-white/40 to-transparent" />
+          <CardContent className="relative z-10 space-y-10 p-8">
             <nav className="flex items-center justify-center gap-6 text-base font-medium text-[#7d82a8] sm:gap-8 sm:text-lg lg:gap-10 lg:text-xl">
               {profileTabs.map((tab, index) => (
                 <button
@@ -293,7 +326,7 @@ function MasonryGallery({ items }: { items: typeof galleryItems }) {
       {items.map((item) => (
         <article
           key={item.id}
-          className="group mb-4 break-inside-avoid overflow-hidden rounded-[24px] border border-[#e4e8ff] bg-white/90 shadow-[0_18px_40px_rgba(92,75,213,0.12)] transition duration-500 hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(92,75,213,0.16)] sm:rounded-[28px]"
+          className="group mb-4 break-inside-avoid overflow-hidden rounded-[24px] border border-white/30 bg-white/50 shadow-[0_8px_24px_rgba(102,91,255,0.12)] backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] hover:shadow-[0_16px_48px_rgba(102,91,255,0.2)] sm:rounded-[28px]"
         >
           <div className="relative h-[200px] sm:h-[240px] lg:h-[280px]">
             <Image
