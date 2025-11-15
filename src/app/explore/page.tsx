@@ -27,14 +27,16 @@ export default function ExplorePage() {
   const [activeQuery, setActiveQuery] = useState("");
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const pageRef = useRef(1);
-  const prefetchingRef = useRef(false);
   const hasMoreRef = useRef(true);
   const abortControllerRef = useRef<AbortController | null>(null);
   const requestIdRef = useRef(0);
   const isNewSearchRef = useRef(false);
+  const isFetchingRef = useRef(false);
+  const activeQueryRef = useRef("");
 
   const loadItems = useCallback(async () => {
-    if (loading || !hasMoreRef.current) return;
+    if (isFetchingRef.current || !hasMoreRef.current) return;
+    isFetchingRef.current = true;
     
     // Cancel any previous request
     if (abortControllerRef.current) {
@@ -50,7 +52,7 @@ export default function ExplorePage() {
     setError(null);
 
     const currentPage = pageRef.current;
-    const requestQuery = activeQuery;
+    const requestQuery = activeQueryRef.current;
 
     try {
       const params = new URLSearchParams({
@@ -58,8 +60,8 @@ export default function ExplorePage() {
         photos: "12",
         videos: "4",
       });
-      if (activeQuery) {
-        params.set("query", activeQuery);
+      if (activeQueryRef.current) {
+        params.set("query", activeQueryRef.current);
       }
 
       const response = await fetch(`/api/pexels?${params.toString()}`, {
@@ -83,7 +85,7 @@ export default function ExplorePage() {
       };
 
       // Double-check request is still current before updating state
-      if (currentRequestId !== requestIdRef.current || requestQuery !== activeQuery) {
+      if (currentRequestId !== requestIdRef.current || requestQuery !== activeQueryRef.current) {
         return;
       }
 
@@ -103,15 +105,14 @@ export default function ExplorePage() {
       setHasMore(more);
       hasMoreRef.current = more;
       pageRef.current = currentPage + 1;
-      prefetchingRef.current = false;
     } catch (caught) {
       // Ignore abort errors
       if (caught instanceof Error && caught.name === "AbortError") {
-        return;
+        // swallow abort, let finally run to reset flags
       }
       
       // Only set error if this is still the current request
-      if (currentRequestId === requestIdRef.current && requestQuery === activeQuery) {
+      if (currentRequestId === requestIdRef.current && requestQuery === activeQueryRef.current) {
         setError(
           caught instanceof Error
             ? caught.message
@@ -120,13 +121,17 @@ export default function ExplorePage() {
       }
     } finally {
       // Only update loading state if this is still the current request
-      if (currentRequestId === requestIdRef.current && requestQuery === activeQuery) {
+      if (currentRequestId === requestIdRef.current && requestQuery === activeQueryRef.current) {
         setLoading(false);
+        isFetchingRef.current = false;
       }
     }
-  }, [loading, activeQuery]);
+  }, []);
 
   useEffect(() => {
+    // Mirror activeQuery into a ref for the stable loader
+    activeQueryRef.current = activeQuery;
+
     // Cancel any in-flight requests
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -137,18 +142,13 @@ export default function ExplorePage() {
     setHasMore(true);
     hasMoreRef.current = true;
     setError(null);
-    prefetchingRef.current = false;
     
     // Mark as new search - items will be replaced when first page loads
     isNewSearchRef.current = true;
     // Don't clear items immediately - wait for new data to arrive to prevent flash
 
-    loadItems().then(() => {
-      if (hasMoreRef.current && !prefetchingRef.current) {
-        prefetchingRef.current = true;
-        loadItems();
-      }
-    });
+    // Initial load only; avoid immediate prefetch to reduce flicker
+    loadItems();
   }, [activeQuery, loadItems]);
 
   useEffect(() => {
@@ -157,13 +157,8 @@ export default function ExplorePage() {
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
-        if (entry.isIntersecting && hasMoreRef.current && !loading) {
-          loadItems().then(() => {
-            if (hasMoreRef.current && !prefetchingRef.current && !loading) {
-              prefetchingRef.current = true;
-              loadItems();
-            }
-          });
+        if (entry.isIntersecting && hasMoreRef.current && !loading && !isFetchingRef.current) {
+          loadItems();
         }
       },
       { rootMargin: "400px 0px" }
@@ -172,7 +167,7 @@ export default function ExplorePage() {
     observer.observe(sentinelRef.current);
 
     return () => observer.disconnect();
-  }, [loadItems, hasMore, loading]);
+  }, [loadItems]);
 
   const gridItems = useMemo(() => items, [items]);
 

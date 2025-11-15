@@ -491,3 +491,56 @@ The `android/` folder is prepared for React Native development. The web UI desig
 ---
 
 This documentation provides a complete reference for understanding the Attach Social web application's design, structure, and implementation details.
+
+---
+
+## 🛠️ Troubleshooting: Explore page shows only skeletons, flickers, or repeated canceled requests
+
+If Explore does not render media or you see many `(canceled)` requests in the Network tab, follow these steps.
+
+1) Verify the API returns items
+- Local:
+  - Windows (cmd):  
+    ```bash
+    curl "http://localhost:3000/api/pexels?page=1&photos=6&videos=2"
+    ```
+  - Ensure the JSON contains an `items` array with objects and `hasMore: true/false`.
+- Production:
+  ```bash
+  curl "https://<your-vercel-domain>/api/pexels?page=1&photos=6&videos=2"
+  ```
+
+2) Environment variable present
+- Local: set `PEXELS_API_KEY` in `.env.local`, then restart dev:
+  ```bash
+  PEXELS_API_KEY=your_key_here
+  npm run dev
+  ```
+- Vercel: add `PEXELS_API_KEY` to the Production environment (not just Preview) and Redeploy.
+
+3) “signal is aborted without reason” is expected
+- The Explore page cancels in‑flight requests to avoid race conditions when the user scrolls or the query changes. Aborted fetch entries in DevTools are normal. The UI should still render media.
+
+4) If you modified Explore and see flicker or infinite cancels
+- Ensure these invariants in `src/app/explore/page.tsx`:
+  - Use an “in‑progress” guard to block concurrent loads.
+  - Do not return early on `AbortError`. Let the `finally` run to reset `loading` and flags.
+  - Keep the loader function stable (use refs like `activeQueryRef`) and initialize `IntersectionObserver` once.
+  - Avoid immediate double-prefetch after the first page; only fetch when the sentinel enters view.
+
+5) Hard refresh and restart
+- Hard refresh the browser (Ctrl+Shift+R) to clear transient UI state.
+- If still stuck, stop and restart the dev server to clear module hot-reload edge cases.
+
+6) Images and videos allowed
+- Remote images are configured in `next.config.ts` for:
+  - `images.unsplash.com`
+  - `images.pexels.com`
+  - `randomuser.me`
+  - Videos are direct `<video>` elements (no Next/Image config needed).
+
+7) Quick checklist
+- API returns `items` locally and in Production.
+- `PEXELS_API_KEY` exists for the environment you’re testing.
+- No permanent errors in Console besides aborts.
+- Scrolling triggers one fetch per page (not many in parallel).
