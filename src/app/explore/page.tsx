@@ -132,9 +132,6 @@ export default function ExplorePage() {
       abortControllerRef.current.abort();
     }
     
-    // Increment request ID to invalidate any pending requests
-    requestIdRef.current++;
-    
     // Reset pagination
     pageRef.current = 1;
     setHasMore(true);
